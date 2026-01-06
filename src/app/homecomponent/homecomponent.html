@@ -1,0 +1,64 @@
+<div class="continer bg-[#36858A] w-full h-screen flex py-20 px-20 sm:px-10 lg:px-20">
+    <div class="w-full h-full bg-[#FFFFFF] rounded-box flex flex-col ">
+
+        <div class="flex justify-between items-center px-6 py-4 w-full flex-wrap">
+
+            <div class="flex flex-row items-center gap-4">
+                <img src="./LOGO DMS Black.png" alt="" class="w-20 h-20 sm:w-28 sm:h-28">
+                <h1 class="text-2xl sm:text-4xl font-bold text-[#2292AD] text-shadow-lg">
+                    DMS SMART DASHBOARD WARDS
+                </h1>
+            </div>
+            <div class="flex flex-row items-center gap-4">
+
+                <button (click)="clickcheckqrcode()"
+                    class="btn border border-[#F75270] bg-[#F75270] text-white hover:bg-white hover:text-[#F75270] ">
+                    เช็ค QR CODE <i class="fa-solid fa-qrcode"></i>
+                </button>
+
+                <button (click)="clicktologout()"
+                    class="btn border border-[#D30000] bg-[#D30000] text-white hover:bg-white hover:text-[#D30000] ">
+                    ออกจากระบบ <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+
+        </div>
+
+        <div class="text-[#36858A] flex justify-center text-center text-2xl font-bold text-shadow-lg"> 
+            ยินดีต้อนรับ {{ user?.full_name || 'IPDLOGIN' }}
+        </div>
+        <div class="flex flex-col justify-center items-center  px-4 mt-50">
+
+            <div class="flex justify-center w-full max-w-lg items-center gap-4 mb-10">
+
+                <select class="select select-lg w-full bg-white border-2 border-[#2292AD] text-black"
+                    [(ngModel)]="selectedWard" name="wardValue">
+                    <option value="000">(000) ไม่ระบุวอร์ด</option>
+
+                    <option *ngFor="let ward of wards" [value]="ward.wardcode">
+                        ({{ ward.wardcode }}) {{ ward.wardname }}
+                    </option>
+                </select>
+
+            </div>
+
+            <div class="flex flex-row justify-center items-center flex-wrap gap-4 ">
+                <button
+                    class="btn bg-[#36858A] text-white w-40  sm:w-48 border-2 border-[#36858A] hover:bg-white hover:text-[#36858A]"
+                    (click)="clicktoipd()">
+                    In - Patient
+                </button>
+                <button
+                    class="btn bg-[#2292AD] text-white w-40 sm:w-48 border-2 border-[#2292AD] hover:bg-white hover:text-[#2292AD]"
+                    (click)="clciktoipdhome()">
+                    Discharge
+                </button>
+            </div>
+        </div>
+
+        <div class="mt-auto">
+            <app-footercomponent></app-footercomponent>
+        </div>
+
+    </div>
+</div>

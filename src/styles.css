@@ -1,1 +1,19 @@
+
 /* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+@plugin "daisyui";
+@import "@fortawesome/fontawesome-free/css/all.min.css";
+
+
+html, body { 
+    height: 100%; 
+    /* overflow: hidden; */
+    font-family: 'Prompt', sans-serif;
+    background-color: white;
+}
+
+
+@plugin "daisyui" {
+  themes: light 
+}
+
