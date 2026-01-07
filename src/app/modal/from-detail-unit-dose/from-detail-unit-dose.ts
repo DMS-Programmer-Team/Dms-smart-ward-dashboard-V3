@@ -16,7 +16,7 @@ import { Detail } from '../../shared/interfaces/detail';
 })
 export class FromDetailUnitDose {
 
-    @ViewChild('modalUnitDose') modal!: ElementRef<HTMLDialogElement>;
+  @ViewChild('modalUnitDose') modal!: ElementRef<HTMLDialogElement>;
 
 
   @Input() orderDetails: Detail[] = [];

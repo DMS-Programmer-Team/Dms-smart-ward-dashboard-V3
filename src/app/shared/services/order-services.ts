@@ -22,6 +22,13 @@ export class OrderServices {
   }
 
 
+    getOrderScanitem(order_number: number, hn: string, item_index: number): Promise<any> {
+    this.socketSrv.emit('req_drug_scan_order_item', { order_number, hn, item_index });
+      console.log('getOrderScanitem called with', order_number, hn, item_index);
+    return this.socketSrv.fromOneTimeEvent<any>('drug_scan_order_item');
+  }
+
+
 
   onUpdateOrderStatePay(): Observable<any> {
     return this.socketSrv.fromEvent<any>('update_order_state_pay');

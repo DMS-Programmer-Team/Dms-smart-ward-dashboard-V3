@@ -112,7 +112,7 @@ export class Inpatientcomponent {
     });
 
     this.dashboardSrv.onDataOrderIPD().subscribe(res => {
-      console.log("onDataOrderIPD", res);
+      // console.log("onDataOrderIPD", res);
       if (res.status === 200) {
         const currentPage = this.pages;
         this.dashboardList = res.msg;
@@ -138,7 +138,7 @@ export class Inpatientcomponent {
           state_5: Number(raw.state_5_count),
         };
 
-        console.log('summary (mapped)', this.summary);
+        // console.log('summary (mapped)', this.summary);
       }
     });
 
@@ -200,7 +200,7 @@ export class Inpatientcomponent {
 
   async openDetail(item: Dashboard) {
 
-    console.log("openDetail item", item);
+    // console.log("openDetail item", item);
     this.selectedOrder = item;
     this.orderDetails = [];
 
@@ -208,13 +208,13 @@ export class Inpatientcomponent {
     this.dashboardSrv.getdetail(item.hn, item.order_number);
 
     this.dashboardSrv.ondetail().subscribe(res => {
-      console.log("ondetail res", res);
+      // console.log("ondetail res", res);
 
       if (res.status === 200) {
         this.orderDetails = [...res.msg];
         Swal.close();
         this.detailComp.open();
-        console.log('detailComp', this.detailComp);
+        // console.log('detailComp', this.detailComp);
       }
     });
   }
