@@ -37,6 +37,7 @@
         <div class="flex flex-col mt-4 gap-4" *ngIf="selectedDrug as data ; else showDefaultDrug">
 
           <span class="text-black text-ml">ชื่อยา : {{ data.genericname }}</span>
+          <span class=" text-black text-ml">วิธีกินยา : {{data.take_medicine}}</span>
           <span class="text-black text-ml">จำนวน : {{ data.qty }}</span>
           <span class="text-black text-ml">หน่วย : {{ data.units }}</span>
           <span class="text-black text-ml">สถานะ : {{ data.state_description_ot }}</span>
@@ -67,7 +68,7 @@
       </div>
 
         <div class="flex flex-row itexms-end justify-end ">
-              <button class="btn btn-warning mt-4" (click)="goToUnitDose()" >มียา UNIT DOSE</button>
+              <button *ngIf="hasUnitDose" class="btn btn-warning mt-4" (click)="goToUnitDose()" >มียา UNIT DOSE</button>
         </div>
 
       <div class="col-span-2 row-span-2 text-black">
@@ -92,7 +93,6 @@
                   <input  *ngIf="isLogin" type="checkbox" checked="checked" class="checkbox checkbox-lg checkbox-success mt-2"
                   [(ngModel)]="data.checked" (change)="onCheckItem(data)" (click)="$event.stopPropagation()" />
                 </td>
-               
               </tr>
 
               <tr *ngIf="filteredOrderDetails.length === 0">

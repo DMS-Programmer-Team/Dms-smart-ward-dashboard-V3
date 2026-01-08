@@ -8,7 +8,7 @@ import { DashboarServices } from '../shared/services/dashboar-services';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { Ward } from '../shared/interfaces/ward';
 import { WardServices } from '../shared/services/ward-services';
-import { Detail } from '../shared/interfaces/detail';
+import { Detail, DetailUnitdose } from '../shared/interfaces/detail';
 import { FromDetailComponent } from '../modal/from-detail-component/from-detail-component';
 import { SwalServices } from '../shared/services/swal-services';
 import Swal from 'sweetalert2';
@@ -40,6 +40,7 @@ export class Inpatientcomponent {
   selectedWard: string = '000';
   selectedOrder!: Dashboard;
   orderDetails: Detail[] = [];
+  unitDoseDetails: DetailUnitdose[] = [];
   selectedDrug: Detail | null = null;
   dashboardList: Dashboard[] = [];
   wards: Ward[] = [];
@@ -112,7 +113,7 @@ export class Inpatientcomponent {
     });
 
     this.dashboardSrv.onDataOrderIPD().subscribe(res => {
-      // console.log("onDataOrderIPD", res);
+      console.log("onDataOrderIPD", res);
       if (res.status === 200) {
         const currentPage = this.pages;
         this.dashboardList = res.msg;
@@ -258,10 +259,39 @@ export class Inpatientcomponent {
     this.showBadge = false;
   }
 
-  openUnitDoseModal() {
-    this.detailComp.close();
-    this.unitDoseModal.open();
-  }
+ openUnitDoseModal() {
+  if (!this.selectedOrder) return;
+
+  this.detailComp.close();
+  this.swalSrv.loadingAlert2();
+  this.socket.emit('get_order_detail_unitdose', {
+    hn: this.selectedOrder.hn,
+    order_number: this.selectedOrder.order_number
+  });
+  this.socket.fromEvent<any>('order_detail_unitdose').subscribe(res => {
+    Swal.close();
+    if (res.status === 200) {
+      this.unitDoseDetails = [...res.msg];
+      setTimeout(() => {
+        this.unitDoseModal.open();
+      });
+    } else {
+      this.unitDoseDetails = [];
+      this.swalSrv.infoAlert({
+        title: 'ไม่พบยา UNIT DOSE',
+        text: 'รายการนี้ไม่มีข้อมูล UNIT DOSE'
+      });
+    }
+  });
+}
+
+backToMain() {
+  this.unitDoseModal.close();   // ปิด unit dose
+  this.swalSrv.loadingAlert2();
+  this.detailComp.open();      // เปิด modal หลักกลับ
+  Swal.close();
+}
+
 
 
   clicktohome() {

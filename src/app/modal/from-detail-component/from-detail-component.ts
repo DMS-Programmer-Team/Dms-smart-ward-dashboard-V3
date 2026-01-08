@@ -428,6 +428,12 @@ export class FromDetailComponent {
     this.filteredOrderDetails = this.orderDetails.filter(d => d.order_state_ot !== 8);
   }
 
+get hasUnitDose(): boolean {
+  return this.selectedOrder?.unitdose === 'Y';
+}
+
+
+
 
 
 

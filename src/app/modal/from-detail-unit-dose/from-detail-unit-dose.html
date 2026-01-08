@@ -31,6 +31,7 @@
         <div class="flex flex-col mt-4 gap-4" *ngIf="selectedDrug as data">
 
           <span class="text-black text-ml">ชื่อยา : {{ data.genericname }}</span>
+          <span class=" text-black text-ml">วิธีกินยา : {{data.take_medicine}}</span>
           <span class="text-black text-ml">จำนวน : {{ data.qty }}</span>
           <span class="text-black text-ml">หน่วย : {{ data.units }}</span>
           <span class="text-black text-ml">สถานะ : {{ data.state_description }}</span>
@@ -47,6 +48,10 @@
         [(ngModel)]="searchText" (keyup)="searchdrug()" />
       </div>
 
+      <div class="flex flex-row itexms-end justify-end ">
+        <button class="btn btn-warning mt-4" (click)="goBack()" >ย้อนกลับ</button>
+      </div>
+
       <div class="col-span-2 row-span-2 text-black">
         <!-- <span class="text-[#D30000] text-ml font-bold"><i class="fa-regular fa-circle-xmark"></i> Unchecked</span> -->
         <div class="w-full max-w-5xl mx-auto ">
@@ -55,6 +60,7 @@
               <tr class="text-center">
                 <th class="text-center w-12">#</th>
                 <th>ชื่อยา</th>
+                <!-- <th>สถานะ</th> -->
                 <!-- <th class="text-center w-12"></th> -->
               </tr>
             </thead>
@@ -63,7 +69,8 @@
                 [ngClass]="{'bg-gray-100': i % 2 === 0, 'bg-white': i % 2 !== 0 }">
 
                 <td class="text-center font-semibold"> {{ i + 1 }} </td>
-                <td class="text-black"> {{ data.genericname }} </td>
+                <td class="text-red-600"> {{ data.genericname }} </td>
+                <!-- <td class="">{{ data.state_description_ipd }}</td> -->
 
               </tr>
             </tbody>

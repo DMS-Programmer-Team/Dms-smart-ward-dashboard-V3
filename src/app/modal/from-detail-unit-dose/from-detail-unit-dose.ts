@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, Input, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Dashboard } from '../../shared/interfaces/dashboard';
 import { Detail } from '../../shared/interfaces/detail';
@@ -21,6 +21,7 @@ export class FromDetailUnitDose {
 
   @Input() orderDetails: Detail[] = [];
   @Input() selectedOrder!: Dashboard;
+  @Output() back = new EventEmitter<void>(); 
 
   selectedDrug: Detail | null = null;
   searchText: string = '';
@@ -58,6 +59,11 @@ export class FromDetailUnitDose {
     this.filteredOrderDetails = this.orderDetails.filter(drug =>
       drug.genericname?.toLowerCase().includes(text)
     );
+  }
+
+  goBack() {
+    this.close();          // ปิด Unit Dose modal
+    this.back.emit();      // แจ้ง parent ให้เปิด modal หลัก
   }
 
 }

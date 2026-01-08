@@ -114,6 +114,24 @@ export class DashboarServices {
     );
   }
 
+    // -------------- detail unitdose ------------------
+  getdetailunitdose(hn: string, order_number: string): void {
+    try {
+      this.socketSrv.emit('get_order_detail_unitdose', { hn, order_number });
+    } catch (error) {
+      console.error('Emit get_order_detail_unitdose error:', error);
+    }
+  }
+
+  ondetailunitdose(): Observable<any> {
+    return this.socketSrv.on<any>('order_detail_unitdose').pipe(
+      catchError(error => {
+        console.error('Socket order_detai_unitdose error:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
   // -------------- set IPD login status ------------------
 
   setIPDLogin(flag: boolean) {

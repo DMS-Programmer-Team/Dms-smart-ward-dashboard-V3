@@ -28,7 +28,7 @@
           </div>
         </div>
 
-        <div class="flex flex-col mt-4 gap-4" *ngIf="selectedDrug as data">
+        <div class="flex flex-col mt-4 gap-4 " *ngIf="selectedDrug as data">
 
           <span class="text-black text-ml">ชื่อยา : {{ data.genericname }}</span>
           <span class="text-black text-ml">จำนวน : {{ data.qty }}</span>
@@ -63,7 +63,7 @@
                 [ngClass]="{'bg-gray-100': i % 2 === 0, 'bg-white': i % 2 !== 0 }">
 
                 <td class="text-center font-semibold"> {{ i + 1 }} </td>
-                <td class="text-black"> {{ data.genericname }} </td>
+                <td class="text-[#359D73]"> {{ data.genericname }} </td>
 
               </tr>
             </tbody>

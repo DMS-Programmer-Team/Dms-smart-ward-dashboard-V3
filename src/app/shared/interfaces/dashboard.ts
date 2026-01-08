@@ -26,6 +26,7 @@ export interface Dashboard {
   total_time: string | null;
   selectedDate: string;
   icode: string;
+  unitdose: string;
 }
 
 export interface SummaryDashboard {

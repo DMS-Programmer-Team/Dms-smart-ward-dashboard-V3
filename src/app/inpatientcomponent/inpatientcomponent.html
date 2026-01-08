@@ -2,8 +2,8 @@
     (goUnitDose)="openUnitDoseModal()">
     ></app-from-detail-component>
 
-<app-from-detail-unit-dose #unitDoseModal [orderDetails]="orderDetails"
-    [selectedOrder]="selectedOrder"></app-from-detail-unit-dose>
+<app-from-detail-unit-dose #unitDoseModal [orderDetails]="unitDoseDetails"
+    [selectedOrder]="selectedOrder" (back)="backToMain()"></app-from-detail-unit-dose>
 
 <div class="px-4 py-4">
     <!-- ปุ่มย้อนกลับ -->
@@ -255,27 +255,27 @@
                         <td>{{ item.patient_name }}</td>
                         <td>{{ item.wardname }}</td>
                         <td>
-                            <span class="badge  badge-warning badge-xl" *ngIf="item.order_type === 'C'">
+                            <span class="badge bg-[#E45A92] badge-xl border-[#E45A92]" *ngIf="item.order_type === 'C'">
                                 CON
                             </span>
 
-                            <span class="badge badge-success badge-xl" *ngIf="item.order_type === 'N'">
+                            <span class="badge badge-success badge-xl text-white" *ngIf="item.order_type === 'N'">
                                 NEW
                             </span>
 
-                            <span class="badge badge-info badge-xl" *ngIf="item.order_type === 'E'">
+                            <span class="badge bg-[#D30000] border-[#D30000] badge-xl" *ngIf="item.order_type === 'E'">
                                 STAT
                             </span>
                         </td>
                         <td>{{ item.order_count }}</td>
                         <td>
                             <span class="badge badge-xl" [ngClass]="{
-                            'bg-[#44444E]': item.order_state < 3,
-                                'bg-[#E9A319]': [3,4,10,12].includes(item.order_state),
-                                'bg-[#C14600]': item.order_state === 6,
-                                'bg-[#064635]': item.order_state === 8,
-                                'bg-[#8e0ed8]': item.order_state === 13,
-                                'bg-[#001A6E]': [14,15,16].includes(item.order_state)
+                            'bg-[#44444E] border-[#44444E]': item.order_state < 3,
+                                'bg-[#E9A319] border-[#E9A319]': [3,4,10,12].includes(item.order_state),
+                                'bg-[#C14600] border-[#C14600]': item.order_state === 6,
+                                'bg-[#064635] border-[#064635]': item.order_state === 8,
+                                'bg-[#154D71] border-[#154D71]': item.order_state === 13,
+                                'bg-[#001A6E] border-[#001A6E]': [14,15,16].includes(item.order_state)
                             }">
                                 {{ item.state_description_ipd }}
                             </span>
