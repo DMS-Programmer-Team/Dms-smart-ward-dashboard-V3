@@ -26,16 +26,26 @@ export interface Detail {
   state_description_ot: any;
   order_state_time: any;
   wardname: any;
-  img_recipient:any;
-  sender_name:any
+  img_recipient: any;
+  sender_name: any
   selectedDate: string;
-  drug_image_base64:any;
-  order_type:any
-  order_count:any
+  drug_image_base64: any;
+  order_type: any
+  order_count: any
   selected?: boolean;
   checked?: boolean;
-  unitdose?:string
-  take_medicine?:string
+  unitdose?: string
+  take_medicine?: string
+}
+
+export interface PackUnitDose {
+  pack_number: number
+}
+
+export interface PackDrugUnitDose {
+  pack_number: number
+  take_time: string
+  pack_image: any
 }
 
 export interface DetailUnitdose {
@@ -66,12 +76,12 @@ export interface DetailUnitdose {
   state_description_ot: any;
   order_state_time: any;
   wardname: any;
-  img_recipient:any;
-  sender_name:any
+  img_recipient: any;
+  sender_name: any
   selectedDate: string;
-  drug_image_base64:any;
-  order_type:any
-  order_count:any
+  drug_image_base64: any;
+  order_type: any
+  order_count: any
   selected?: boolean;
   checked?: boolean;
   take_time: any

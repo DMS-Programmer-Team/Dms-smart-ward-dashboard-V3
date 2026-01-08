@@ -29,6 +29,9 @@ export interface Dashboard {
   unitdose: string;
 }
 
+
+
+
 export interface SummaryDashboard {
   state_0: number;
   state_1: number;

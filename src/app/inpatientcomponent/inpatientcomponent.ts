@@ -8,7 +8,7 @@ import { DashboarServices } from '../shared/services/dashboar-services';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { Ward } from '../shared/interfaces/ward';
 import { WardServices } from '../shared/services/ward-services';
-import { Detail, DetailUnitdose } from '../shared/interfaces/detail';
+import { Detail, DetailUnitdose, PackUnitDose } from '../shared/interfaces/detail';
 import { FromDetailComponent } from '../modal/from-detail-component/from-detail-component';
 import { SwalServices } from '../shared/services/swal-services';
 import Swal from 'sweetalert2';
@@ -40,7 +40,7 @@ export class Inpatientcomponent {
   selectedWard: string = '000';
   selectedOrder!: Dashboard;
   orderDetails: Detail[] = [];
-  unitDoseDetails: DetailUnitdose[] = [];
+  packUnitDose: PackUnitDose[] = [];
   selectedDrug: Detail | null = null;
   dashboardList: Dashboard[] = [];
   wards: Ward[] = [];
@@ -259,38 +259,60 @@ export class Inpatientcomponent {
     this.showBadge = false;
   }
 
- openUnitDoseModal() {
-  if (!this.selectedOrder) return;
+  openUnitDoseModal() {
+    if (!this.selectedOrder) return;
 
-  this.detailComp.close();
-  this.swalSrv.loadingAlert2();
-  this.socket.emit('get_order_detail_unitdose', {
-    hn: this.selectedOrder.hn,
-    order_number: this.selectedOrder.order_number
-  });
-  this.socket.fromEvent<any>('order_detail_unitdose').subscribe(res => {
+    // ปิด modal หลัก
+    this.detailComp.close();
+
+    // แสดง loading
+    this.swalSrv.loadingAlert2();
+
+    const hn = this.selectedOrder.hn;
+    const order_number = this.selectedOrder.order_number;
+
+    // subscribe ครั้งเดียว
+    const sub = this.socket.fromEvent<any>('order_pack_unitdose')
+      .subscribe(res => {
+        Swal.close(); // ปิด loading
+
+        if (res.status === 200 && res.data?.length > 0) {
+          // assign ข้อมูลให้ modal
+          this.unitDoseModal.orderDetails = res.data.map((x: any) => ({
+            pack_number: x.pack_number,
+          }));
+          
+          //packunitdose
+          this.unitDoseModal.selectedOrder = this.selectedOrder;
+          //packdrugunitdose
+          this.packUnitDose = res.msg;
+
+          // เปิด modal
+          this.unitDoseModal.open();
+
+        } else {
+          this.packUnitDose = [];
+          this.swalSrv.infoAlert({
+            title: 'ไม่พบยา UNIT DOSE',
+            text: 'รายการนี้ไม่มีข้อมูล UNIT DOSE'
+          });
+        }
+
+        // unsubscribe หลังใช้
+        sub.unsubscribe();
+      });
+
+    // ส่ง request ไป server
+    this.socket.emit('get_pack_unitdose', { hn, order_number });
+  }
+
+
+  backToMain() {
+    this.unitDoseModal.close();   // ปิด unit dose
+    this.swalSrv.loadingAlert2();
+    this.detailComp.open();      // เปิด modal หลักกลับ
     Swal.close();
-    if (res.status === 200) {
-      this.unitDoseDetails = [...res.msg];
-      setTimeout(() => {
-        this.unitDoseModal.open();
-      });
-    } else {
-      this.unitDoseDetails = [];
-      this.swalSrv.infoAlert({
-        title: 'ไม่พบยา UNIT DOSE',
-        text: 'รายการนี้ไม่มีข้อมูล UNIT DOSE'
-      });
-    }
-  });
-}
-
-backToMain() {
-  this.unitDoseModal.close();   // ปิด unit dose
-  this.swalSrv.loadingAlert2();
-  this.detailComp.open();      // เปิด modal หลักกลับ
-  Swal.close();
-}
+  }
 
 
 
@@ -303,6 +325,27 @@ backToMain() {
       window.location.href = '/home';
     }, 1500);
   }
+
+
+/////////////// PACK DRUG UNIT DOSE /////////////////////////
+handleSelectPack(event: { pack_number: number, hn: string }) {
+  console.log('Selected pack:', event);
+
+  this.dashboardSrv.getpackdrugunitdose(event.pack_number, event.hn);
+
+  this.dashboardSrv.onpackldrugunitdose().subscribe(res => {
+    if (res.status === 200 && res.data.length > 0) {
+      this.unitDoseModal.setPackDrugDetail(res.data[0]);  
+    } else {
+      this.unitDoseModal.setPackDrugDetail({
+        pack_number: 0,
+        take_time: '-',
+        pack_image: null
+      });
+    }
+  });
+}
+
 
 
 }

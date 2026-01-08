@@ -2,7 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, ElementRef, EventEmitter, Input, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Dashboard } from '../../shared/interfaces/dashboard';
-import { Detail } from '../../shared/interfaces/detail';
+import { Detail, PackDrugUnitDose } from '../../shared/interfaces/detail';
+import { PackUnitDose } from '../../shared/interfaces/detail';
 
 @Component({
   selector: 'app-from-detail-unit-dose',
@@ -18,48 +19,35 @@ export class FromDetailUnitDose {
 
   @ViewChild('modalUnitDose') modal!: ElementRef<HTMLDialogElement>;
 
-
-  @Input() orderDetails: Detail[] = [];
+  @Input() orderDetails: PackUnitDose[] = [];
   @Input() selectedOrder!: Dashboard;
   @Output() back = new EventEmitter<void>(); 
+  @Output() selectPack = new EventEmitter<{ pack_number: number, hn: string }>();
 
-  selectedDrug: Detail | null = null;
-  searchText: string = '';
-  filteredOrderDetails: Detail[] = [];
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['orderDetails'] && this.orderDetails?.length) {
-      this.filteredOrderDetails = [...this.orderDetails];
-      this.searchText = '';
-      this.selectedDrug = null;
-    }
-  }
-
-  selectDrug(item: Detail) {
-    this.selectedDrug = item;
-  }
+  packDrugDetail!: PackDrugUnitDose;
 
   open() {
-    this.filteredOrderDetails = [...this.orderDetails];
-    this.searchText = '';
-    this.selectedDrug = null;
-
     this.modal.nativeElement.showModal();
   }
 
   close() {
-    this.selectedDrug = null;
-    this.searchText = '';
-    this.filteredOrderDetails = [];
+
     this.modal.nativeElement.close();
   }
 
-  searchdrug() {
-    const text = this.searchText.toLowerCase().trim();
-    this.filteredOrderDetails = this.orderDetails.filter(drug =>
-      drug.genericname?.toLowerCase().includes(text)
-    );
+  //////////////// pack drug unitdose //////////////////
+  onClickRow(item: PackUnitDose) {
+      console.log('Click row item:', item, 'selectedOrder:', this.selectedOrder);
+
+    if (this.selectedOrder) {
+      this.selectPack.emit({ pack_number: item.pack_number, hn: this.selectedOrder.hn });
+    }
   }
+
+  setPackDrugDetail(data: PackDrugUnitDose) {
+    this.packDrugDetail = data;
+  }
+ 
 
   goBack() {
     this.close();          // ปิด Unit Dose modal

@@ -1,4 +1,4 @@
-<dialog #modalUnitDose class="modal" id="my_modal_3" >
+<dialog #modalUnitDose class="modal" id="my_modal_3">
   <div class="modal-box w-full max-w-5xl bg-white ">
 
     <button type="button" (click)="close()"
@@ -8,11 +8,11 @@
 
     <h3 class="text-xl  items-center flex justify-center text-black">รายการยา</h3>
     <div class="border-b border-gray-400 mt-4"></div>
-    <div  class="flex flex-col mt-4">
-      <div  *ngIf="selectedOrder" class="flex flex-row  gap-10 text-center ">
-        <span class=" text-black">ชื่อ-นามสกุล : {{ selectedOrder.patient_name }}</span>
-        <span class=" text-black">HN : {{ selectedOrder.hn }}</span>
-        <span class=" text-black">วอร์ด : {{ selectedOrder.wardname }}</span>
+    <div class="flex flex-col mt-4">
+      <div *ngIf="selectedOrder" class="flex flex-row  gap-10 text-center ">
+        <span class=" text-black">ชื่อ-นามสกุล : {{ selectedOrder.patient_name}} </span>
+        <span class=" text-black">HN : {{ selectedOrder.hn}} </span>
+        <span class=" text-black">วอร์ด : {{ selectedOrder.wardname}} </span>
       </div>
       <div class="border-b border-gray-400 mt-4"></div>
 
@@ -24,19 +24,21 @@
 
         <div class="flex flex-col">
           <div class="flex justify-center items-center border-2 border-gray-100 rounded-2xl p-2">
-            <img [src]="selectedDrug?.drug_image_base64 || './drugs.gif'" alt="">
+            <img *ngIf="packDrugDetail" [src]="packDrugDetail.pack_image" alt="Drug Image">
+            <img *ngIf="!packDrugDetail" src="./drugs.gif" alt="">
           </div>
         </div>
 
-        <div class="flex flex-col mt-4 gap-4" *ngIf="selectedDrug as data">
-
-          <span class="text-black text-ml">ชื่อยา : {{ data.genericname }}</span>
-          <span class=" text-black text-ml">วิธีกินยา : {{data.take_medicine}}</span>
-          <span class="text-black text-ml">จำนวน : {{ data.qty }}</span>
-          <span class="text-black text-ml">หน่วย : {{ data.units }}</span>
-          <span class="text-black text-ml">สถานะ : {{ data.state_description }}</span>
-
+        <div *ngIf="packDrugDetail; else showDefaultDrug"class="flex flex-col mt-4 gap-4" >
+          <span class="text-black text-ml">PACK : UNITDOSE {{ packDrugDetail.pack_number || '-' }}</span>
+          <span class="text-black text-ml">มื้อ : {{ packDrugDetail.take_time || '-' }}</span>
         </div>
+
+                <ng-template #showDefaultDrug>
+          <div class="flex justify-center items-center ">
+            <span class="text-black text-ml mt-4">กรุณาสแกนหรือเลือกรับยา</span>
+          </div>
+        </ng-template>
 
       </div>
 
@@ -44,12 +46,11 @@
       <!-- ข้อมูลยังไม่ได้เช็ครับยา -->
       <div class="flex flex-col items-start justify-start">
         <span class="text-black text-ml"><i class="fa-solid fa-magnifying-glass"></i>ค้นหา</span>
-        <input #searchInput type="search" placeholder="กรุณากรอกชื่อยา" class="input bg-white text-black border border-gray-100" 
-        [(ngModel)]="searchText" (keyup)="searchdrug()" />
+        <input type="search" placeholder="กรุณากรอกชื่อยา" class="input bg-white text-black border border-gray-100" />
       </div>
 
       <div class="flex flex-row itexms-end justify-end ">
-        <button class="btn btn-warning mt-4" (click)="goBack()" >ย้อนกลับ</button>
+        <button class="btn btn-warning mt-4" (click)="goBack()">ย้อนกลับ</button>
       </div>
 
       <div class="col-span-2 row-span-2 text-black">
@@ -59,18 +60,15 @@
             <thead class="bg-[#1581BF] text-white">
               <tr class="text-center">
                 <th class="text-center w-12">#</th>
-                <th>ชื่อยา</th>
-                <!-- <th>สถานะ</th> -->
-                <!-- <th class="text-center w-12"></th> -->
+                <th>unitdose</th>
+
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let data of filteredOrderDetails; let i = index"  class="text-center text-black text-lg cursor-pointer"(click)="selectDrug(data)"
-                [ngClass]="{'bg-gray-100': i % 2 === 0, 'bg-white': i % 2 !== 0 }">
-
+              <tr *ngFor="let item of orderDetails; let i = index" class="text-center text-black text-lg cursor-pointer"
+                [ngClass]="{'bg-gray-100': i % 2 === 0, 'bg-white': i % 2 !== 0 }" (click)="onClickRow(item)">
                 <td class="text-center font-semibold"> {{ i + 1 }} </td>
-                <td class="text-red-600"> {{ data.genericname }} </td>
-                <!-- <td class="">{{ data.state_description_ipd }}</td> -->
+                <td class="text-black text-center "> UNITDOSE {{ item.pack_number }} </td>
 
               </tr>
             </tbody>

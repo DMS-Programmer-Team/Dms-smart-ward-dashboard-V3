@@ -2,8 +2,8 @@
     (goUnitDose)="openUnitDoseModal()">
     ></app-from-detail-component>
 
-<app-from-detail-unit-dose #unitDoseModal [orderDetails]="unitDoseDetails"
-    [selectedOrder]="selectedOrder" (back)="backToMain()"></app-from-detail-unit-dose>
+<app-from-detail-unit-dose #unitDoseModal 
+    [selectedOrder]="selectedOrder" [orderDetails]="[]" (back)="backToMain()" (selectPack)="handleSelectPack($event)"></app-from-detail-unit-dose>
 
 <div class="px-4 py-4">
     <!-- ปุ่มย้อนกลับ -->
