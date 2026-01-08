@@ -14,8 +14,8 @@ import { SwalServices } from '../shared/services/swal-services';
 import Swal from 'sweetalert2';
 import { AuthServices } from '../shared/services/auth-services';
 import { User } from '../shared/interfaces/user';
-import { FromDetailUnitDose } from '../modal/from-detail-unit-dose/from-detail-unit-dose';
 import { LockerNotification } from '../shared/interfaces/lockernotidication';
+import { OrderServices } from '../shared/services/order-services';
 
 
 @Component({
@@ -25,7 +25,6 @@ import { LockerNotification } from '../shared/interfaces/lockernotidication';
     FormsModule,
     NgxPaginationModule,
     FromDetailComponent,
-    FromDetailUnitDose
   ],
   templateUrl: './inpatientcomponent.html',
   styleUrl: './inpatientcomponent.css',
@@ -33,9 +32,6 @@ import { LockerNotification } from '../shared/interfaces/lockernotidication';
 export class Inpatientcomponent {
 
   @ViewChild('detailModal') detailComp!: FromDetailComponent;
-  @ViewChild('unitDoseModal') unitDoseModal!: FromDetailUnitDose;
-
-
 
   selectedWard: string = '000';
   selectedOrder!: Dashboard;
@@ -75,6 +71,7 @@ export class Inpatientcomponent {
   private wardSrv = inject(WardServices);
   private swalSrv = inject(SwalServices);
   private authSrv = inject(AuthServices)
+  private ordSrv = inject(OrderServices)
 
   ngOnInit() {
 
@@ -112,7 +109,7 @@ export class Inpatientcomponent {
     });
 
     this.dashboardSrv.onDataOrderIPD().subscribe(res => {
-      // console.log("onDataOrderIPD", res);
+      console.log("onDataOrderIPD", res);
       if (res.status === 200) {
         const currentPage = this.pages;
         this.dashboardList = res.msg;
@@ -258,12 +255,6 @@ export class Inpatientcomponent {
     this.showBadge = false;
   }
 
-  openUnitDoseModal() {
-    this.detailComp.close();
-    this.unitDoseModal.open();
-  }
-
-
   clicktohome() {
     this.swalSrv.loadingAlert({
       title: 'Please wait',
@@ -273,6 +264,103 @@ export class Inpatientcomponent {
       window.location.href = '/home';
     }, 1500);
   }
+
+
+  async prepareAndClickApprove(item: Dashboard) {
+    this.selectedOrder = item;
+
+    if (item.order_state !== 8) {
+      this.swalSrv.errorAlert({
+        title: 'ไม่สามารถบันทึกเวลาได้',
+        text: 'ยังไม่ได้เช็ครับยา ไม่สามารถบันทึกเวลาได้'
+      });
+      return;
+    }
+
+    this.dashboardSrv.getdetail(item.hn, item.order_number);
+
+    this.dashboardSrv.ondetail().subscribe(res => {
+      if (res.status === 200) {
+        this.orderDetails = [...res.msg];
+        this.clickapporvetime(item);
+      } else {
+        this.swalSrv.errorAlert({
+          title: 'เกิดข้อผิดพลาด',
+          text: 'ไม่สามารถดึงรายละเอียดยาได้'
+        });
+      }
+    });
+  }
+
+
+
+  async clickapporvetime(item: Dashboard) {
+    const loginname = this.user?.full_name || 'unknown';
+
+    const result = await this.swalSrv.confirmAlert({
+      title: 'ยืนยันนำยาไปใช้',
+      text: `คุณต้องการยืนยันการนำยาไปใช้ของ HN: ${item.hn} หรือไม่?`,
+      icon: 'question',
+      confirmText: 'ยืนยัน',
+      cancelText: 'ยกเลิก',
+    });
+
+    if (!result) {
+      console.log('ผู้ใช้ยกเลิกการนำยา');
+      return;
+    }
+
+    try {
+      const promises = this.orderDetails.map(async (d) => {
+        if (!d.icode) {
+          console.warn(`[WARN] icode ของยาไม่ถูกต้อง:`, d);
+          return;
+        }
+
+        const hn = this.selectedOrder.hn;
+        console.log('ส่งข้อมูลไป updateOrderApproveDrug:', {
+          loginname,
+          order_number: this.selectedOrder.order_number,
+          icode: d.icode,
+          hn
+        });
+
+        const res = await this.ordSrv.updateOrderApproveDrug(
+          loginname,
+          Number(this.selectedOrder.order_number),
+          d.icode,
+          hn
+        );
+
+        if (res.rowCount === 0) {
+          throw new Error(`ไม่พบ row สำหรับ update icode: ${d.icode}, order_number: ${this.selectedOrder.order_number}, hn: ${hn}`);
+        }
+
+        console.log(`[INFO] update สำเร็จ icode: ${d.icode}`);
+      });
+
+      await Promise.all(promises);
+
+      this.swalSrv.successAlert({
+        title: 'สำเร็จ',
+        text: 'บันทึกการนำยาเรียบร้อย',
+        timer: 1500
+      });
+    } catch (err) {
+      console.error('เกิดข้อผิดพลาดในการบันทึกการนำยา:', err);
+      this.swalSrv.errorAlert({
+        title: 'เกิดข้อผิดพลาด',
+        text: 'ไม่สามารถบันทึกการนำยาได้'
+      });
+    }
+  }
+
+
+
+
+
+
+
 
 
 }

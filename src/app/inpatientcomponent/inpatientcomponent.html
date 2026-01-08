@@ -1,9 +1,4 @@
-<app-from-detail-component #detailModal [selectedOrder]="selectedOrder" [orderDetails]="orderDetails"
-    (goUnitDose)="openUnitDoseModal()">
-    ></app-from-detail-component>
-
-<app-from-detail-unit-dose #unitDoseModal [orderDetails]="orderDetails"
-    [selectedOrder]="selectedOrder"></app-from-detail-unit-dose>
+<app-from-detail-component #detailModal [selectedOrder]="selectedOrder" [orderDetails]="orderDetails"></app-from-detail-component>
 
 <div class="px-4 py-4">
     <!-- ปุ่มย้อนกลับ -->
@@ -242,6 +237,7 @@
                         <th>จำนวนรายการยา</th>
                         <th>สถานะ</th>
                         <th>ข้อมูล</th>
+                        <th>ลงเวลา</th>
                     </tr>
                 </thead>
                 <tbody *ngIf="dashboardList.length > 0; else noData">
@@ -283,6 +279,11 @@
                         <td>
                             <button class="btn btn-md btn-warning" (click)="openDetail(item)">
                                 <i class="fa-solid fa-circle-exclamation"></i>
+                            </button>
+                        </td>
+                        <td>
+                            <button  class="btn btn-md btn-info" (click)="prepareAndClickApprove(item)">
+                                <i class="fa-solid fa-clock"></i>
                             </button>
                         </td>
 

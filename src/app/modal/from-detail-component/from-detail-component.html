@@ -16,12 +16,11 @@
       </div>
       <div class="border-b border-gray-400 mt-4"></div>
 
-      <div *ngIf="isLogin" class="flex justify-end gap-4 mt-4">
+      <div *ngIf="isLogin && hasReceivableItems" class="flex justify-end gap-4 mt-4">
         <span class="text-black text-lg">Check All</span>
         <input type="checkbox" class="checkbox checkbox-xl checkbox-success" [(ngModel)]="checkAll"
           (change)="toggleCheckAll()" />
       </div>
-
     </div>
 
     <div class="grid grid-cols-3 gap-4 mt-2">
@@ -66,10 +65,6 @@
           [(ngModel)]="searchText" (keyup.enter)="onScanEnter()" (keyup)="onTyping($event)" />
       </div>
 
-        <div class="flex flex-row itexms-end justify-end ">
-              <button class="btn btn-warning mt-4" (click)="goToUnitDose()" >มียา UNIT DOSE</button>
-        </div>
-
       <div class="col-span-2 row-span-2 text-black">
         <span class="text-[#D30000] text-ml font-bold"><i class="fa-regular fa-circle-xmark"></i> Unchecked</span>
         <div class="w-full max-w-5xl mx-auto ">
@@ -89,7 +84,7 @@
                 <td class="text-center font-semibold"> {{ i + 1 }} </td>
                 <td class="text-red-600"> {{ data.genericname }} </td>
                 <td class="text-center">
-                  <input  *ngIf="isLogin" type="checkbox" checked="checked" class="checkbox checkbox-lg checkbox-success mt-2"
+                  <input  *ngIf="isLogin && hasReceivableItems" type="checkbox" checked="checked" class="checkbox checkbox-lg checkbox-success mt-2"
                   [(ngModel)]="data.checked" (change)="onCheckItem(data)" (click)="$event.stopPropagation()" />
                 </td>
                
@@ -105,8 +100,6 @@
           </table>
         </div>
       </div>
-
-
 
       <!-- ข้อมูลยังที่เช็ครับยาแล้ว -->
       <ng-container>

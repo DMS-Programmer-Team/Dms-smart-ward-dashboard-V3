@@ -18,8 +18,8 @@ export class AuthServices {
     return true;
   }
 
-  async userLogin(loginname: string, password: string): Promise<ResponseData> {
-    await this.socketSrv.emit('ward_user_login', { loginname, password });
+  async userLogin( password: string): Promise<ResponseData> {
+    await this.socketSrv.emit('ward_user_login', {  password });
     return this.socketSrv.fromOneTimeEvent<ResponseData>('ward_user_login_result');
   }
 

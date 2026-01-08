@@ -31,34 +31,6 @@ export const routes: Routes = [
         loadComponent: () => import('./modal/from-detail-component/from-detail-component').then(m => m.FromDetailComponent)
     },
     {
-        path: 'register',
-        loadComponent: () => import('./logincomponent/register-component/register-component').then(m => m.RegisterComponent)
-    },
-    {
-        path: 'pageadmin',
-        loadComponent: () => import('./logincomponent/pageadmin-component/pageadmin-component').then(m => m.PageadminComponent)
-    },
-    {
-        path: 'datauser',
-        loadComponent: () => import('./logincomponent/datauser-component/datauser-component').then(m => m.DatauserComponent)
-    },
-    {
-        path: 'adduser',
-        loadComponent: () => import('./logincomponent/pageadmin-component/adduser-component/adduser-component').then(m => m.AdduserComponent)
-    },
-    {
-        path: 'addwardsuser',
-        loadComponent: () => import('./logincomponent/pageadmin-component/addwarduser-component/addwarduser-component').then(m => m.AddwarduserComponent)
-    },
-    {
-        path: 'edituser',
-        loadComponent: () => import('./logincomponent/pageadmin-component/edituser-component/edituser-component').then(m => m.EdituserComponent)
-    },
-    {
-        path: 'resetaccount',
-        loadComponent: () => import('./logincomponent/pageadmin-component/resetaccout-component/resetaccout-component').then(m => m.ResetaccoutComponent)
-    },
-    {
         path: '',
         redirectTo: '/login',
         pathMatch: 'full'

@@ -7,24 +7,29 @@ import { SocketServices } from './socket-services';
 })
 export class OrderServices {
 
-    private socketSrv = inject(SocketServices);
+  private socketSrv = inject(SocketServices);
 
-  updateOrderStatePay(order_number: number, icode: string, item_index: number, loginname: string, qty: number, order_state: number): Promise<any> {
-    this.socketSrv.emit('req_update_order_state_pay', { order_number, icode, item_index, loginname, qty, order_state });
+  updateOrderStatePay(order_number: number, icode: string, item_index: number, loginname: string, qty: number, order_state: number, hn: string): Promise<any> {
+    this.socketSrv.emit('req_update_order_state_pay', { order_number, icode, item_index, loginname, qty, order_state, hn });
     return this.socketSrv.fromOneTimeEvent<any>('update_order_state_pay');
+  }
+
+  updateOrderApproveDrug(loginname: string, order_number: number, icode: string, hn: string): Promise<any> {
+    this.socketSrv.emit('req_update_approve_drug', { order_number, icode, loginname, hn });
+    return this.socketSrv.fromOneTimeEvent<any>('update_order_approve_drug');
   }
 
 
   getOrderScanipd(order_number: number, hn: string): Promise<any> {
     this.socketSrv.emit('req_drug_scan_order_ipd', { order_number, hn });
-      console.log('getOrderScanipd called with', order_number, hn);
+    console.log('getOrderScanipd called with', order_number, hn);
     return this.socketSrv.fromOneTimeEvent<any>('drug_scan_order_ipd');
   }
 
 
-    getOrderScanitem(order_number: number, hn: string, item_index: number): Promise<any> {
+  getOrderScanitem(order_number: number, hn: string, item_index: number): Promise<any> {
     this.socketSrv.emit('req_drug_scan_order_item', { order_number, hn, item_index });
-      console.log('getOrderScanitem called with', order_number, hn, item_index);
+    console.log('getOrderScanitem called with', order_number, hn, item_index);
     return this.socketSrv.fromOneTimeEvent<any>('drug_scan_order_item');
   }
 
@@ -47,5 +52,5 @@ export class OrderServices {
       });
     });
   }
-  
+
 }

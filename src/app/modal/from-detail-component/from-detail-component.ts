@@ -28,14 +28,13 @@ export class FromDetailComponent {
   @Input() orderDetails: Detail[] = [];
   @Input() selectedOrder!: Dashboard;
   @Output() received = new EventEmitter<void>();
-  @Output() goUnitDose = new EventEmitter<void>();
 
   selectedDrug: Detail | null = null;
   searchText: string = '';
   filteredOrderDetails: Detail[] = [];
   checkAll: boolean = false;
   user!: User | undefined
-  allowedOrderStates = [0, 6, 14, 15, 16];
+  allowedOrderStates = [0, 6, 14, 16];
   checkedData: Detail[] = [];
 
 
@@ -57,7 +56,7 @@ export class FromDetailComponent {
   private swalSrv = inject(SwalServices)
 
   ngOnChanges(changes: SimpleChanges) {
-    console.log('orderDetails changed', changes['orderDetails']);
+    // console.log('orderDetails changed', changes['orderDetails']);
 
     this.user = this.authSrv.getUser();
 
@@ -125,6 +124,7 @@ export class FromDetailComponent {
   }
 
   toggleCheckAll() {
+    
     this.filteredOrderDetails.forEach(item => {
       item.checked = this.checkAll;
     });
@@ -143,15 +143,19 @@ export class FromDetailComponent {
   canReceiveDrug(item?: Detail | null): boolean {
     if (!this.user) return false;
     if (!item) return false;
+    if (item.order_state === 15) return false;
     return this.allowedOrderStates.includes(item.order_state_ot);
   }
 
   get hasCheckedItems(): boolean {
     return this.filteredOrderDetails.some(i => i.checked);
   }
+  get hasReceivableItems(): boolean {
+    return this.filteredOrderDetails.some(d => this.canReceiveDrug(d));
+  }
 
   get canConfirmReceive(): boolean {
-    if (this.hasCheckedItems) return true;
+    if (this.hasCheckedItems ) return true;
     return this.canReceiveDrug(this.selectedDrug);
   }
 
@@ -182,9 +186,10 @@ export class FromDetailComponent {
         Number(this.selectedOrder.order_number),
         item.icode,
         item.item_index,
-        this.user.loginname ?? '',
+        this.user.wardname,
         item.qty,
-        item.order_state
+        item.order_state,
+        item.hn
       );
 
       item.order_state_ot = 8;
@@ -227,10 +232,6 @@ export class FromDetailComponent {
     this.lastItemScan = null;
   }
 
-  goToUnitDose() {
-    console.log('ไปยัง modal UNIT DOSE');
-    this.goUnitDose.emit();
-  }
 
   parseScan(raw: string): ScanResult {
     const parts = raw.split('.');
