@@ -24,17 +24,60 @@
 
         <div class="flex flex-col">
           <div class="flex justify-center items-center border-2 border-gray-100 rounded-2xl p-2">
-            <img *ngIf="packDrugDetail" [src]="packDrugDetail.pack_image" alt="Drug Image">
-            <img *ngIf="!packDrugDetail" src="./drugs.gif" alt="">
+            <img *ngIf="packDrugDetail?.pack_image; else defaultImg" [src]="packDrugDetail?.pack_image"
+              alt="Pack Image">
+
+            <ng-template #defaultImg>
+              <img src="./drugs.gif" alt="">
+            </ng-template>
+
           </div>
         </div>
 
-        <div *ngIf="packDrugDetail; else showDefaultDrug"class="flex flex-col mt-4 gap-4" >
+        <div *ngIf="packDrugDetail; else showDefaultDrug" class="flex flex-col mt-4 gap-4">
           <span class="text-black text-ml">PACK : UNITDOSE {{ packDrugDetail.pack_number || '-' }}</span>
           <span class="text-black text-ml">มื้อ : {{ packDrugDetail.take_time || '-' }}</span>
+          <span class="text-black text-ml text-center">รายการยา</span>
         </div>
 
-                <ng-template #showDefaultDrug>
+        <div class="flex flex-col mt-4 gap-4 max-h-[400px] overflow-y-auto pr-2">
+
+          <div *ngFor="let d of packDrugDetail?.drugs; let i = index" class="flex flex-col gap-4">
+
+            <span *ngIf="!isDrugError && isNotRegistered" class="text-red-600 font-bold">
+              ERROR ({{ qtyChecked }} / {{ orderQty }})
+            </span>
+
+            <span *ngIf="isDrugError" class="text-red-600 font-bold">
+              ไม่มียาในระบบ ({{ qtyChecked }} / {{ orderQty }})
+            </span>
+
+            <span class="text-black text-ml">ชื่อยา : {{ d.name }}</span>
+            <span class="text-black text-ml">จำนวน : {{ d.unit }}</span>
+
+            <div class="flex justify-center items-center w-16 h-16 mx-auto">
+              <img *ngIf="d.drug_image" [src]="d.drug_image" class="border-2 border-gray-100 rounded-2xl p-2
+                  max-w-full max-h-full object-contain" />
+            </div>
+
+            <div class="flex flex-col flex-center mt-2 gap-2">
+              <button class="btn btn-success mt-2">
+                ยืนยันรับยา
+              </button>
+            </div>
+            <div class="border-t border-gray-300"></div>
+          </div>
+
+        </div>
+
+
+        <div class="flex flex-col mt-2 gap-2">
+          <button class="btn btn-success mt-2">
+            ยืนยันรับยาทั้งหมด
+          </button>
+        </div>
+
+        <ng-template #showDefaultDrug>
           <div class="flex justify-center items-center ">
             <span class="text-black text-ml mt-4">กรุณาสแกนหรือเลือกรับยา</span>
           </div>
@@ -49,7 +92,9 @@
         <input type="search" placeholder="กรุณากรอกชื่อยา" class="input bg-white text-black border border-gray-100" />
       </div>
 
-      <div class="flex flex-row itexms-end justify-end ">
+      <div class="flex flex-row itexms-end justify-end gap-4">
+        <span class="text-black text-lg mt-6">Check All</span>
+        <input type="checkbox" class="checkbox checkbox-xl checkbox-success mt-5" />
         <button class="btn btn-warning mt-4" (click)="goBack()">ย้อนกลับ</button>
       </div>
 
@@ -60,22 +105,67 @@
             <thead class="bg-[#1581BF] text-white">
               <tr class="text-center">
                 <th class="text-center w-12">#</th>
-                <th>unitdose</th>
-
+                <th >unitdose</th>
+               <th class="text-center w-12"></th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let item of orderDetails; let i = index" class="text-center text-black text-lg cursor-pointer"
                 [ngClass]="{'bg-gray-100': i % 2 === 0, 'bg-white': i % 2 !== 0 }" (click)="onClickRow(item)">
                 <td class="text-center font-semibold"> {{ i + 1 }} </td>
-                <td class="text-black text-center "> UNITDOSE {{ item.pack_number }} </td>
+                <td class="text-[#D30000]  text-center "> UNITDOSE {{ item.pack_number }} </td>
+                <td class="text-center">
+                  <input   type="checkbox" checked="checked" class="checkbox checkbox-lg checkbox-success mt-2" />
+                </td>
 
+              </tr>
+
+                <tr *ngIf="orderDetails.length === 0">
+                <td colspan="3" class="text-center py-6 text-lg font-semibold text-black">
+                  รับยาครบแล้ว
+                </td>
               </tr>
             </tbody>
 
           </table>
         </div>
       </div>
+
+
+            <!-- ข้อมูลยังที่เช็ครับยาแล้ว -->
+      <ng-container>
+        <div class="col-span-2 row-span-2 text-black">
+          <span class="text-[#359D73] text-ml font-bold"><i class="fa-regular fa-circle-check"></i> Checked</span>
+
+          <table class="table w-full border border-gray-300 rounded-lg overflow-hidden shadow-lg">
+            <thead class="bg-[#1581BF] text-white">
+              <tr class="text-center">
+                <th class="text-center w-12">#</th>
+                <th >unitdose</th>
+                <th class="text-center w-12"></th>
+              </tr>
+            </thead>
+            <tbody>
+  
+            <tr *ngFor="let item of orderDetails; let i = index" class="text-center text-black text-lg cursor-pointer"
+                [ngClass]="{'bg-gray-100': i % 2 === 0, 'bg-white': i % 2 !== 0 }" (click)="onClickRow(item)">
+                <td class="text-center font-semibold"> {{ i + 1 }} </td>
+                <td class="text-[#359D73] text-center "> UNITDOSE {{ item.pack_number }} </td>
+
+
+              </tr>
+              <!-- ถ้าไม่มีข้อมูล -->
+              <tr *ngIf="orderDetails.length === 0">
+                <td colspan="2" class="text-center text-black py-4 text-lg">
+                  ยังไม่ได้ทำการรับยา
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </ng-container>
+
+
 
 
     </div>

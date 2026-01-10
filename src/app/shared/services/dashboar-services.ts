@@ -168,6 +168,24 @@ export class DashboarServices {
     );
   }
 
+
+  getdrugunitdose(pack_number:number, id:string): void {
+    try {
+      this.socketSrv.emit('get_drug_unitdose', { pack_number, id });
+    } catch (error) {
+      console.error('Emit get_drug_unitdose error:', error);
+    }
+  }
+
+  ondrugunitdose(): Observable<any> {
+    return this.socketSrv.on<any>('order_drug_unitdose').pipe(
+      catchError(error => {
+        console.error('Socket order_drug_unitdose error:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
   // -------------- set IPD login status ------------------
 
   setIPDLogin(flag: boolean) {

@@ -113,7 +113,7 @@ export class Inpatientcomponent {
     });
 
     this.dashboardSrv.onDataOrderIPD().subscribe(res => {
-      console.log("onDataOrderIPD", res);
+      // console.log("onDataOrderIPD", res);
       if (res.status === 200) {
         const currentPage = this.pages;
         this.dashboardList = res.msg;
@@ -286,7 +286,7 @@ export class Inpatientcomponent {
           this.unitDoseModal.selectedOrder = this.selectedOrder;
           //packdrugunitdose
           this.packUnitDose = res.msg;
-
+      
           // เปิด modal
           this.unitDoseModal.open();
 
@@ -334,17 +334,26 @@ handleSelectPack(event: { pack_number: number, hn: string }) {
   this.dashboardSrv.getpackdrugunitdose(event.pack_number, event.hn);
 
   this.dashboardSrv.onpackldrugunitdose().subscribe(res => {
-    if (res.status === 200 && res.data.length > 0) {
-      this.unitDoseModal.setPackDrugDetail(res.data[0]);  
+
+    if (res.status === 200 && res.data) {
+      this.unitDoseModal.setPackDrugDetail(res.data);
+      console.log('setPackDrugDetail', res.data);
+
     } else {
       this.unitDoseModal.setPackDrugDetail({
+        pack_id: 0,
         pack_number: 0,
         take_time: '-',
-        pack_image: null
+        pack_image: null,
+        drugs: []
       });
     }
+
   });
 }
+
+
+  
 
 
 

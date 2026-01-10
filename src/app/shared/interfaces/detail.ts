@@ -42,11 +42,27 @@ export interface PackUnitDose {
   pack_number: number
 }
 
-export interface PackDrugUnitDose {
-  pack_number: number
-  take_time: string
-  pack_image: any
+export interface DrugUnitDose {
+  code: string;
+  unit: string;
+  name: string;
+  drug_image: string | null;
+  result: any
+  order_qty: number
+  qty_checked: number
+  is_registed: boolean
+  error: string | null
+  registed:string | null
 }
+
+export interface PackDrugUnitDose {
+  pack_id: number;
+  pack_number: number;
+  take_time: string;
+  pack_image: string | null;
+  drugs: DrugUnitDose[];
+}
+
 
 export interface DetailUnitdose {
   checkindate: any;
