@@ -99,12 +99,13 @@ export class FromDetailComponent {
     this.modal.nativeElement.close();
   }
 
-  searchdrug() {
-    const text = this.searchText.toLowerCase().trim();
-    this.filteredOrderDetails = this.orderDetails.filter(drug =>
-      drug.genericname?.toLowerCase().includes(text)
-    );
-  }
+searchdrug() {
+  const text = this.searchText.toLowerCase().trim();
+  this.filteredOrderDetails = this.orderDetails
+    .filter(drug => drug.order_state_ot !== 8)  
+    .filter(drug => drug.genericname?.toLowerCase().includes(text)); 
+}
+
 
   onTyping(event: KeyboardEvent) {
     if (event.key === 'Enter') return;

@@ -133,9 +133,9 @@ export class DashboarServices {
   }
 
 
-  getpackunitdose(hn: string, order_number: string): void {
+  getpackunitdose(hn: string, order_number: string, order_date: string): void {
     try {
-      this.socketSrv.emit('get_pack_unitdose', { hn, order_number });
+      this.socketSrv.emit('get_pack_unitdose', { hn, order_number, order_date });
     } catch (error) {
       console.error('Emit get_order_detail_unitdose error:', error);
     }
@@ -151,9 +151,9 @@ export class DashboarServices {
   }
 
 
-    getpackdrugunitdose(pack_number:number, patient_code:string): void {
+    getpackdrugunitdose(pack_id:string, order_number:string): void {
     try {
-      this.socketSrv.emit('get_pack_drug_unitdose', { pack_number, patient_code });
+      this.socketSrv.emit('get_pack_drug_unitdose', { pack_id, order_number});
     } catch (error) {
       console.error('Emit get_order_detail_unitdose error:', error);
     }

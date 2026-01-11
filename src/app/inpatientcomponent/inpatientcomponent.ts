@@ -8,7 +8,7 @@ import { DashboarServices } from '../shared/services/dashboar-services';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { Ward } from '../shared/interfaces/ward';
 import { WardServices } from '../shared/services/ward-services';
-import { Detail, DetailUnitdose, PackUnitDose } from '../shared/interfaces/detail';
+import { Detail,  PackUnitDose } from '../shared/interfaces/detail';
 import { FromDetailComponent } from '../modal/from-detail-component/from-detail-component';
 import { SwalServices } from '../shared/services/swal-services';
 import Swal from 'sweetalert2';
@@ -271,39 +271,39 @@ export class Inpatientcomponent {
     const hn = this.selectedOrder.hn;
     const order_number = this.selectedOrder.order_number;
 
-    // subscribe ครั้งเดียว
-    const sub = this.socket.fromEvent<any>('order_pack_unitdose')
-      .subscribe(res => {
-        Swal.close(); // ปิด loading
+const sub = this.socket.fromEvent<any>('order_pack_unitdose')
+  .subscribe(res => {
+    Swal.close(); // ปิด loading
 
-        if (res.status === 200 && res.data?.length > 0) {
-          // assign ข้อมูลให้ modal
-          this.unitDoseModal.orderDetails = res.data.map((x: any) => ({
-            pack_number: x.pack_number,
-          }));
-          
-          //packunitdose
-          this.unitDoseModal.selectedOrder = this.selectedOrder;
-          //packdrugunitdose
-          this.packUnitDose = res.msg;
-      
-          // เปิด modal
-          this.unitDoseModal.open();
+    if (res.status === 200 && res.data?.length > 0) {
 
-        } else {
-          this.packUnitDose = [];
-          this.swalSrv.infoAlert({
-            title: 'ไม่พบยา UNIT DOSE',
-            text: 'รายการนี้ไม่มีข้อมูล UNIT DOSE'
-          });
-        }
+      // ส่งข้อมูลทั้งหมดให้ modal
+      this.unitDoseModal.packUnitDose = res.data.map((x: any) => ({
+        pack_id: x.id,
+        pack_number: x.pack_number,
+        take_time: x.take_time,
+        pack_image: x.pack_image
+      }));
 
-        // unsubscribe หลังใช้
-        sub.unsubscribe();
+      this.unitDoseModal.selectedOrder = this.selectedOrder;
+
+      // เปิด modal
+      this.unitDoseModal.open();
+
+    } else {
+      this.unitDoseModal.packUnitDose = [];
+      this.swalSrv.infoAlert({
+        title: 'ไม่พบยา UNIT DOSE',
+        text: 'รายการนี้ไม่มีข้อมูล UNIT DOSE'
       });
+    }
+
+    sub.unsubscribe();
+  });
+
 
     // ส่ง request ไป server
-    this.socket.emit('get_pack_unitdose', { hn, order_number });
+    this.socket.emit('get_pack_unitdose', { hn, order_number, order_date: this.selectedOrder.order_date });
   }
 
 
@@ -330,27 +330,10 @@ export class Inpatientcomponent {
 /////////////// PACK DRUG UNIT DOSE /////////////////////////
 handleSelectPack(event: { pack_number: number, hn: string }) {
   console.log('Selected pack:', event);
-
-  this.dashboardSrv.getpackdrugunitdose(event.pack_number, event.hn);
-
-  this.dashboardSrv.onpackldrugunitdose().subscribe(res => {
-
-    if (res.status === 200 && res.data) {
-      this.unitDoseModal.setPackDrugDetail(res.data);
-      console.log('setPackDrugDetail', res.data);
-
-    } else {
-      this.unitDoseModal.setPackDrugDetail({
-        pack_id: 0,
-        pack_number: 0,
-        take_time: '-',
-        pack_image: null,
-        drugs: []
-      });
-    }
-
-  });
+   
 }
+
+
 
 
   

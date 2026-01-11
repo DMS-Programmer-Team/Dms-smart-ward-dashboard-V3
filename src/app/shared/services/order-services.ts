@@ -14,7 +14,6 @@ export class OrderServices {
     return this.socketSrv.fromOneTimeEvent<any>('update_order_state_pay');
   }
 
-
   getOrderScanipd(order_number: number, hn: string): Promise<any> {
     this.socketSrv.emit('req_drug_scan_order_ipd', { order_number, hn });
       console.log('getOrderScanipd called with', order_number, hn);
