@@ -301,9 +301,12 @@ const sub = this.socket.fromEvent<any>('order_pack_unitdose')
     sub.unsubscribe();
   });
 
+  const d = new Date(this.selectedOrder.order_date);
+  const localDate = d.toLocaleDateString('en-CA'); // YYYY-MM-DD
 
     // ส่ง request ไป server
-    this.socket.emit('get_pack_unitdose', { hn, order_number, order_date: this.selectedOrder.order_date });
+    this.socket.emit('get_pack_unitdose', { hn, order_number, order_date:localDate });
+    console.log("get_pack_unitdose", hn, order_number, localDate);
   }
 
 
@@ -317,14 +320,12 @@ const sub = this.socket.fromEvent<any>('order_pack_unitdose')
 
 
   clicktohome() {
-    this.swalSrv.loadingAlert({
-      title: 'Please wait',
-      text: 'Reloading page...'
+   this.swalSrv.loadingAlert({ title: 'Please wait', text: 'Searching for information' });
+    this.router.navigate(['/home']).then(() => {
+      window.location.reload();
     });
-    setTimeout(() => {
-      window.location.href = '/home';
-    }, 1500);
   }
+  
 
 
 /////////////// PACK DRUG UNIT DOSE /////////////////////////

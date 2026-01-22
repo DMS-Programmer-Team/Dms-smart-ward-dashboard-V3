@@ -215,12 +215,9 @@ export class Dischargecomponent {
 
 
 clicktohome() {
-  this.swalServ.loadingAlert({ 
-    title: 'Please wait', 
-    text: 'Reloading page...' 
-  });
-  setTimeout(() => {
-    window.location.href = '/home'; 
-  }, 1500); 
+  this.swalServ.loadingAlert({ title: 'Please wait', text: 'Searching for information' });
+    this.router.navigate(['/home']).then(() => {
+      window.location.reload();
+    });
 }
 }
