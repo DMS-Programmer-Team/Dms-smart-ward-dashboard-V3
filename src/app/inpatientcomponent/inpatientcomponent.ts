@@ -100,15 +100,14 @@ export class Inpatientcomponent {
       console.log('Locker new event:', data);
 
       //  แสดง badge เฉพาะ ward ที่ตรงกับ wardValue
-      if (data.wardcode === this.selectedWard) {
-        console.log('Selected ward:', this.selectedWard, 'Incoming ward:', data.wardcode);
+      if (data.wardcode === this.filters.ward) {
+        console.log('Selected ward:', this.filters.ward, 'Incoming ward:', data.wardcode);
         this.showBadge = true;
       }
 
       // ตัวอย่างกรณี hello client
       if (data?.msg?.toLowerCase() === 'hello client') {
         console.log('Client connected message received', data);
-        // สามารถโชว์ Swal หรือ handle อื่นๆ ได้
       }
     });
 
