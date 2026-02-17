@@ -27,6 +27,8 @@ export interface Dashboard {
   selectedDate: string;
   icode: string;
   unitdose: string;
+  lock_state : number;
+  create_at: string;
 }
 
 
