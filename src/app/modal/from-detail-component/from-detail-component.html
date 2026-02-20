@@ -7,13 +7,27 @@
     </button>
 
     <h3 class="text-xl  items-center flex justify-center text-black">รายการยา</h3>
-    <div class="border-b border-gray-400 mt-4"></div>
-    <div class="flex flex-col mt-4">
-      <div *ngIf="selectedOrder" class="flex flex-row  gap-10 text-center ">
-        <span class=" text-black">ชื่อ-นามสกุล : {{ selectedOrder.patient_name }}</span>
-        <span class=" text-black">HN : {{ selectedOrder.hn }}</span>
-        <span class=" text-black">วอร์ด : {{ selectedOrder.wardname }}</span>
+    <div class="flex flex-col mt-4" *ngIf="selectedOrder as order">
+
+      <div class="flex flex-row gap-10 text-center">
+        <span class="text-black">ชื่อ-นามสกุล : {{ order.patient_name }}</span>
+        <span class="text-black">HN : {{ order.hn }}</span>
+        <span class="text-black">วอร์ด : {{ order.wardname }}</span>
       </div>
+
+      <div class="flex flex-row gap-10 mt-4">
+        <span class="text-black">
+          เวลานำเข้า Locker : {{ order.lock_state === 1 && order.create_at ? (order.create_at | date:'HH:mm') + ' น.' :
+          '-' }}
+        </span>
+
+        <span class="text-black">เวลานำออก Locker :
+          {{(order.lock_state === 2 || order.lock_state === 3) ? ((order.create_at | date:'HH:mm') || '-') +
+          ((order.create_at | date:'HH:mm') ? ' น.' : ''): '-'}}
+        </span>
+
+      </div>
+
       <div class="border-b border-gray-400 mt-4"></div>
 
       <div *ngIf="isLogin" class="flex justify-end gap-4 mt-4">
@@ -23,6 +37,7 @@
       </div>
 
     </div>
+
 
     <div class="grid grid-cols-3 gap-4 mt-2">
       <!-- ข้อมูลยาและรูปภาพ -->
@@ -41,6 +56,14 @@
           <span class="text-black text-ml">จำนวน : {{ data.qty }}</span>
           <span class="text-black text-ml">หน่วย : {{ data.units }}</span>
           <span class="text-black text-ml">สถานะ : {{ data.state_description_ot }}</span>
+          <span class="text-black text-ml">
+            เวลารับเข้า :
+            {{
+            (data.state_datetime | date:'HH:mm')
+            ? (data.state_datetime | date:'HH:mm') + ' น.'
+            : '-'
+            }}
+          </span>
 
         </div>
 
@@ -63,13 +86,13 @@
       <div class="flex flex-col items-start justify-start">
         <span class="text-black text-ml"><i class="fa-solid fa-magnifying-glass"></i>ค้นหา</span>
         <input #searchInput type="search" placeholder="กรุณากรอกชื่อยา"
-          class="input bg-white text-black border border-gray-100" 
-          [(ngModel)]="searchText" (keyup.enter)="onScanEnter()" (keyup)="onTyping($event)" />
+          class="input bg-white text-black border border-gray-100" [(ngModel)]="searchText"
+          (keyup.enter)="onScanEnter()" (keyup)="onTyping($event)" />
       </div>
 
-        <div class="flex flex-row itexms-end justify-end ">
-              <button *ngIf="hasUnitDose" class="btn btn-warning mt-4" (click)="goToUnitDose()" >มียา UNIT DOSE</button>
-        </div>
+      <div class="flex flex-row itexms-end justify-end ">
+        <button *ngIf="hasUnitDose" class="btn btn-warning mt-4" (click)="goToUnitDose()">มียา UNIT DOSE</button>
+      </div>
 
       <div class="col-span-2 row-span-2 text-black">
         <span class="text-[#D30000] text-ml font-bold"><i class="fa-regular fa-circle-xmark"></i> Unchecked</span>
@@ -90,8 +113,9 @@
                 <td class="text-center font-semibold"> {{ i + 1 }} </td>
                 <td class="text-red-600"> {{ data.genericname }} </td>
                 <td class="text-center">
-                  <input  *ngIf="isLogin" type="checkbox" checked="checked" class="checkbox checkbox-lg checkbox-success mt-2"
-                  [(ngModel)]="data.checked" (change)="onCheckItem(data)" (click)="$event.stopPropagation()" />
+                  <input *ngIf="isLogin" type="checkbox" checked="checked"
+                    class="checkbox checkbox-lg checkbox-success mt-2" [(ngModel)]="data.checked"
+                    (change)="onCheckItem(data)" (click)="$event.stopPropagation()" />
                 </td>
               </tr>
 
@@ -128,7 +152,7 @@
               </tr>
 
               <!-- ถ้าไม่มีข้อมูล -->
-              <tr *ngIf="checkedData?.length === 0">
+              <tr *ngIf="checkedData.length === 0">
                 <td colspan="2" class="text-center text-black py-4 text-lg">
                   ยังไม่ได้ทำการรับยา
                 </td>
@@ -140,7 +164,7 @@
 
     </div>
 
-    
+
 
   </div>
 </dialog>

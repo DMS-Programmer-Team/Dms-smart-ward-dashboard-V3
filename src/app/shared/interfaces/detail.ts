@@ -36,6 +36,7 @@ export interface Detail {
   checked?: boolean;
   unitdose?: string
   take_medicine?: string
+  state_datetime: any
 }
 
 export interface PackUnitDose {

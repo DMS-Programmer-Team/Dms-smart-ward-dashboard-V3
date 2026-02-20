@@ -199,8 +199,8 @@
             <thead class="bg-[#1581BF] border-b border-[#1581BF] text-white">
                 <tr class="text-center text-lg">
                     <th>#</th>
-                    <!-- <th>วันที่เช็คอิน</th>
-                    <th>เวลาเช็คอิน</th> -->
+                    <!-- <th>วันที่เช็คอิน</th> -->
+                    <th>เวลาเช็คอิน</th>
                     <th>HN</th>
                     <th>AN</th>
                     <th>เลขที่ใบสั่งยา</th>
@@ -217,13 +217,15 @@
                     class="text-center text-xl bg-white text-black hover:bg-gray-100"
                     [ngClass]="{'bg-white': i % 2 === 0, 'bg-gray-100': i % 2 !== 0 }">
                     <td>{{ i + 1 }}</td>
-                    <td>{{ item.hn }}</td>
-                    <td>{{ item.an }}</td>
-                    <td>{{ item.prescription_number }}</td>
-                    <td>{{ item.patient_name }}</td>
-                    <td>{{ item.wardname }}</td>
+                    <!-- <td>{{ item.order_date | date: 'dd/MM/yyyy' }}</td> -->
+                    <td>{{ item.order_time.substring(0, 8)  || '-'}}</td>
+                    <td>{{ item.hn || '-' }}</td>
+                    <td>{{ item.an || '-' }}</td>
+                    <td>{{ item.prescription_number || '-' }}</td>
+                    <td>{{ item.patient_name || '-' }}</td>
+                    <td>{{ item.wardname || '-' }}</td>
                     <td >
-                        <span class="badge bg-[#9929EA] border-[#9929EA] text-white  badge-xl" *ngIf="item.order_type === 'H'">
+                        <span class="badge bg-[#9929EA] border-[#9929EA] text-white  badge-xl" *ngIf="item.order_type?.trim() === 'H'">
                             HOME
                         </span>
 

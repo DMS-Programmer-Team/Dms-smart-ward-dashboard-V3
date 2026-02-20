@@ -1,5 +1,141 @@
 
 /* You can add global styles to this file, and also import other style files */
+
+/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+@plugin "daisyui";
+@import "@fortawesome/fontawesome-free/css/all.min.css";
+
+
+html, body { 
+    height: 100%; 
+    /* overflow: hidden; */
+    font-family: 'Prompt', sans-serif;
+    background-color: white;
+}
+
+
+@plugin "daisyui" {
+  themes: light 
+}
+
+@font-face {
+  font-family: 'Prompt';
+  src: url('/assets/fonts/Prompt-Thin.ttf') format('truetype');
+  font-weight: 100;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Prompt';
+  src: url('/assets/fonts/Prompt-ThinItalic.ttf') format('truetype');
+  font-weight: 100;
+  font-style: italic;
+}
+
+/* EXTRA LIGHT */
+@font-face {
+  font-family: 'Prompt';
+  src: url('/assets/fonts/Prompt-ExtraLight.ttf') format('truetype');
+  font-weight: 200;
+}
+@font-face {
+  font-family: 'Prompt';
+  src: url('/assets/fonts/Prompt-ExtraLightItalic.ttf') format('truetype');
+  font-weight: 200;
+  font-style: italic;
+}
+
+/* LIGHT */
+@font-face {
+  font-family: 'Prompt';
+  src: url('/assets/fonts/Prompt-Light.ttf') format('truetype');
+  font-weight: 300;
+}
+@font-face {
+  font-family: 'Prompt';
+  src: url('/assets/fonts/Prompt-LightItalic.ttf') format('truetype');
+  font-weight: 300;
+  font-style: italic;
+}
+
+/* REGULAR */
+@font-face {
+  font-family: 'Prompt';
+  src: url('/assets/fonts/Prompt-Regular.ttf') format('truetype');
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'Prompt';
+  src: url('/assets/fonts/Prompt-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+}
+
+/* MEDIUM */
+@font-face {
+  font-family: 'Prompt';
+  src: url('/assets/fonts/Prompt-Medium.ttf') format('truetype');
+  font-weight: 500;
+}
+@font-face {
+  font-family: 'Prompt';
+  src: url('/assets/fonts/Prompt-MediumItalic.ttf') format('truetype');
+  font-weight: 500;
+  font-style: italic;
+}
+
+/* SEMI BOLD */
+@font-face {
+  font-family: 'Prompt';
+  src: url('/assets/fonts/Prompt-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+}
+@font-face {
+  font-family: 'Prompt';
+  src: url('/assets/fonts/Prompt-SemiBoldItalic.ttf') format('truetype');
+  font-weight: 600;
+  font-style: italic;
+}
+
+/* BOLD */
+@font-face {
+  font-family: 'Prompt';
+  src: url('/assets/fonts/Prompt-Bold.ttf') format('truetype');
+  font-weight: 700;
+}
+@font-face {
+  font-family: 'Prompt';
+  src: url('/assets/fonts/Prompt-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+}
+
+/* EXTRA BOLD */
+@font-face {
+  font-family: 'Prompt';
+  src: url('/assets/fonts/Prompt-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+}
+@font-face {
+  font-family: 'Prompt';
+  src: url('/assets/fonts/Prompt-ExtraBoldItalic.ttf') format('truetype');
+  font-weight: 800;
+  font-style: italic;
+}
+
+/* BLACK */
+@font-face {
+  font-family: 'Prompt';
+  src: url('/assets/fonts/Prompt-Black.ttf') format('truetype');
+  font-weight: 900;
+}
+@font-face {
+  font-family: 'Prompt';
+  src: url('/assets/fonts/Prompt-BlackItalic.ttf') format('truetype');
+  font-weight: 900;
+  font-style: italic;
+}
+
 @import "tailwindcss";
 @plugin "daisyui";
 @import "@fortawesome/fontawesome-free/css/all.min.css";

@@ -232,8 +232,8 @@
             <thead class="bg-[#1581BF] border-b border-[#1581BF] text-white">
                 <tr class="text-center text-lg">
                     <th>#</th>
-                    <!-- <th>วันที่เช็คอิน</th>
-                    <th>เวลาเช็คอิน</th> -->
+                    <!-- <th>วันที่เช็คอิน</th> -->
+                    <th>เวลาเช็คอิน</th>
                     <th>HN</th>
                     <th>AN</th>
                     <th>เลขที่ใบสั่งยา</th>
@@ -241,8 +241,7 @@
                     <th>หอผู้ป่วย</th>
                     <th>ประเภท</th>
                     <th>จำนวนรายการยา</th>
-                    <th>เวลานำเข้า</th>
-                    <th>เวลานำออก</th>
+                    <!-- <th>เวลานำออก</th> -->
                     <th>สถานะ</th>
                     <th>ข้อมูล</th>
                 </tr>
@@ -252,28 +251,30 @@
                     class="text-center text-xl bg-white text-black hover:bg-gray-100"
                     [ngClass]="{'bg-white': i % 2 === 0, 'bg-gray-100': i % 2 !== 0 }">
                     <td>{{ i + 1 }}</td>
-                    <td>{{ item.hn }}</td>
-                    <td>{{ item.an }}</td>
-                    <td>{{ item.prescription_number }}</td>
-                    <td>{{ item.patient_name }}</td>
-                    <td>{{ item.wardname }}</td>
+                    <!-- <td>{{ item.order_date | date: 'dd/MM/yyyy' }}</td> -->
+                    <td>{{ item.order_time.substring(0, 8) || '-'}} </td>
+                    <td>{{ item.hn || '-' }}</td>
+                    <td>{{ item.an || '-'}}</td>
+                    <td>{{ item.prescription_number || '-' }}</td>
+                    <td>{{ item.patient_name || '-' }}</td>
+                    <td>{{ item.wardname || '-' }}</td>
                     <td>
-                        <span class="badge bg-[#E45A92] badge-xl border-[#E45A92] text-white" *ngIf="item.order_type === 'C '">
+                        <span class="badge bg-[#E45A92] badge-xl border-[#E45A92] text-white" *ngIf="item.order_type?.trim() === 'C'">
                             CON
                         </span>
 
-                        <span class="badge badge-success badge-xl text-white" *ngIf="item.order_type === 'N'">
+                        <span class="badge badge-success badge-xl text-white"*ngIf="item.order_type?.trim() === 'N'">
                             NEW
                         </span>
 
-                        <span class="badge bg-[#D30000] border-[#D30000] badge-xl text-white" *ngIf="item.order_type === 'E'">
+                        <span class="badge bg-[#D30000] border-[#D30000] badge-xl text-white" *ngIf="item.order_type?.trim() === 'E'">
                             STAT
                         </span>
                     </td>
                     <td>{{ item.order_count }}</td>
 
-                    <td>{{ item.lock_state === 1 ? (item.create_at | date:'HH:mm') + ' น.' : '-' }}</td>
-                    <td>{{ item.lock_state == 2 || item.lock_state == 3 ? (item.create_at | date:'HH:mm') + ' น.' : '-' }}</td>
+                    <!-- <td>{{ item.lock_state === 1 ? (item.create_at | date:'HH:mm') + ' น.' : '-' }}</td>
+                    <td>{{ item.lock_state == 2 || item.lock_state == 3 ? (item.create_at | date:'HH:mm') + ' น.' : '-' }}</td> -->
                     
                     <td>
                         <span class="badge badge-xl text-white" [ngClass]="{
