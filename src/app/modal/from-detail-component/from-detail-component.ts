@@ -57,7 +57,7 @@ export class FromDetailComponent {
   private swalSrv = inject(SwalServices)
 
   ngOnChanges(changes: SimpleChanges) {
-    console.log('orderDetails changed', changes['orderDetails']);
+    // console.log('orderDetails changed', changes['orderDetails']);
 
     this.user = this.authSrv.getUser();
 

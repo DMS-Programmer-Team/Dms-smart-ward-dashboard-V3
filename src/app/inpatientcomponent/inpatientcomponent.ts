@@ -8,7 +8,7 @@ import { DashboarServices } from '../shared/services/dashboar-services';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { Ward } from '../shared/interfaces/ward';
 import { WardServices } from '../shared/services/ward-services';
-import { Detail,  PackUnitDose } from '../shared/interfaces/detail';
+import { Detail, PackUnitDose } from '../shared/interfaces/detail';
 import { FromDetailComponent } from '../modal/from-detail-component/from-detail-component';
 import { SwalServices } from '../shared/services/swal-services';
 import Swal from 'sweetalert2';
@@ -100,8 +100,8 @@ export class Inpatientcomponent {
       console.log('Locker new event:', data);
 
       //  แสดง badge เฉพาะ ward ที่ตรงกับ wardValue
-      if (data.wardcode === this.selectedWard) {
-        console.log('Selected ward:', this.selectedWard, 'Incoming ward:', data.wardcode);
+      if (data.wardcode === this.filters.ward) {
+        console.log('Selected ward:', this.filters.ward, 'Incoming ward:', data.wardcode);
         this.showBadge = true;
       }
 
@@ -271,41 +271,41 @@ export class Inpatientcomponent {
     const hn = this.selectedOrder.hn;
     const order_number = this.selectedOrder.order_number;
 
-const sub = this.socket.fromEvent<any>('order_pack_unitdose')
-  .subscribe(res => {
-    Swal.close(); // ปิด loading
+    const sub = this.socket.fromEvent<any>('order_pack_unitdose')
+      .subscribe(res => {
+        Swal.close(); // ปิด loading
 
-    if (res.status === 200 && res.data?.length > 0) {
+        if (res.status === 200 && res.data?.length > 0) {
 
-      // ส่งข้อมูลทั้งหมดให้ modal
-      this.unitDoseModal.packUnitDose = res.data.map((x: any) => ({
-        pack_id: x.id,
-        pack_number: x.pack_number,
-        take_time: x.take_time,
-        pack_image: x.pack_image
-      }));
+          // ส่งข้อมูลทั้งหมดให้ modal
+          this.unitDoseModal.packUnitDose = res.data.map((x: any) => ({
+            pack_id: x.id,
+            pack_number: x.pack_number,
+            take_time: x.take_time,
+            pack_image: x.pack_image
+          }));
 
-      this.unitDoseModal.selectedOrder = this.selectedOrder;
+          this.unitDoseModal.selectedOrder = this.selectedOrder;
 
-      // เปิด modal
-      this.unitDoseModal.open();
+          // เปิด modal
+          this.unitDoseModal.open();
 
-    } else {
-      this.unitDoseModal.packUnitDose = [];
-      this.swalSrv.infoAlert({
-        title: 'ไม่พบยา UNIT DOSE',
-        text: 'รายการนี้ไม่มีข้อมูล UNIT DOSE'
+        } else {
+          this.unitDoseModal.packUnitDose = [];
+          this.swalSrv.infoAlert({
+            title: 'ไม่พบยา UNIT DOSE',
+            text: 'รายการนี้ไม่มีข้อมูล UNIT DOSE'
+          });
+        }
+
+        sub.unsubscribe();
       });
-    }
 
-    sub.unsubscribe();
-  });
-
-  const d = new Date(this.selectedOrder.order_date);
-  const localDate = d.toLocaleDateString('en-CA'); // YYYY-MM-DD
+    const d = new Date(this.selectedOrder.order_date);
+    const localDate = d.toLocaleDateString('en-CA'); // YYYY-MM-DD
 
     // ส่ง request ไป server
-    this.socket.emit('get_pack_unitdose', { hn, order_number, order_date:localDate });
+    this.socket.emit('get_pack_unitdose', { hn, order_number, order_date: localDate });
     console.log("get_pack_unitdose", hn, order_number, localDate);
   }
 
@@ -320,24 +320,53 @@ const sub = this.socket.fromEvent<any>('order_pack_unitdose')
 
 
   clicktohome() {
-   this.swalSrv.loadingAlert({ title: 'Please wait', text: 'Searching for information' });
+    this.swalSrv.loadingAlert({ title: 'Please wait', text: 'Searching for information' });
     this.router.navigate(['/home']).then(() => {
       window.location.reload();
     });
   }
-  
-
-
-/////////////// PACK DRUG UNIT DOSE /////////////////////////
-handleSelectPack(event: { pack_number: number, hn: string }) {
-  console.log('Selected pack:', event);
-   
-}
 
 
 
+  /////////////// PACK DRUG UNIT DOSE /////////////////////////
+  handleSelectPack(event: { pack_number: number, hn: string }) {
+    console.log('Selected pack:', event);
 
-  
+  }
+
+
+  getOrderStateText(state: number): string {
+    if (state < 3) {
+      return 'รอรับเข้าระบบ';
+    }
+
+    if ([3, 4, 10, 11, 12].includes(state)) {
+      return 'จัดยาเสร็จสิ้น';
+    }
+
+    if (state === 6) {
+      return 'ตรวจสอบยาเสร็จสิ้น';
+    }
+
+    if (state === 8) {
+      return 'นำส่งเสร็จสิ้น';
+    }
+
+    if (state === 13) {
+      return 'เตรียมนำส่ง';
+    }
+
+    if ([14, 15, 16].includes(state)) {
+      return 'กำลังนำส่ง';
+    }
+
+    return '-';
+  }
+
+
+
+
+
 
 
 
