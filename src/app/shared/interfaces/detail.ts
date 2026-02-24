@@ -26,6 +26,7 @@ export interface Detail {
   state_description_ot: any;
   order_state_time: any;
   wardname: any;
+  wardcode: any;
   img_recipient: any;
   sender_name: any
   selectedDate: string;
@@ -70,6 +71,11 @@ export interface DrugUnitDose {
   error:any,
   registed:any
   
+}
+
+export interface CreateTimeLocker {
+  create_at: any
+  lock_state: any
 }
 
 

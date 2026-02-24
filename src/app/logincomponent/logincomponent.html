@@ -25,26 +25,6 @@
                     <i class="fa-solid fa-hospital"></i> IPD LOGIN
                 </button>
 
-                <button class="btn w-full md:w-auto border border-[#F875AA] bg-[#F875AA] text-white
-                     hover:bg-white hover:text-[#F875AA] mb-2 md:mb-4 rounded-md" (click)="openAdminModal()">
-                    <i class="fa-solid fa-user-tie"></i> ADMIN
-                </button>
-
-                 <!-- Modal -->
-                <dialog id="adminModal" class="modal" [open]="isAdminModalOpen" data-theme="light">
-                    <div class="modal-box">
-                        <h3 class="font-bold text-lg text-center text-[#F875AA]">รหัสผ่านสำหรับผู้ดูแลระบบ</h3>
-
-                        <input type="password" [(ngModel)]="adminCode" placeholder="กรอกรหัสผู้ดูแล"
-                            class="input input-bordered w-full mt-4 text-black" />
-
-                        <div class="modal-action flex justify-center text-center">
-                            <button class="btn" (click)="closeAdminModal()">ยกเลิก</button>
-                            <button type="submit" class="btn btn-primary" (click)="confirmAdminCode()" (keydown.enter)="confirmAdminCode()">ยืนยัน</button>
-                        </div>
-                    </div>
-                </dialog>
-
             </div>
         </div>
 
@@ -83,16 +63,7 @@
                 </h5>
 
                 <form class="space-y-4 w-full ">
-
-                    <!-- Username -->
-                    <div data-theme="light">
-                        <label class="label">
-                            <span class="label-text font-semibold text-[#2292AD]">ชื่อผู้ใช้ (Username)</span>
-                        </label>
-                        <input type="text" [(ngModel)]="loginname" name="loginname" placeholder="กรอกชื่อผู้ใช้"
-                            class="input input-bordered w-full" />
-                    </div>
-
+                    
                     <!-- Password -->
                     <div data-theme="light">
                         <label class="label">
@@ -103,21 +74,13 @@
                     </div>
 
                     <button type="submit" (click)="clicktologin()" (keydown.enter)="clicktologin()"
-                        class="w-full flex items-center justify-center gap-2 text-white bg-[#4FBDBA] hover:bg-[#3da69f] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">
+                        class="w-full flex items-center justify-center gap-2 text-white bg-[#4FBDBA] hover:bg-[#3da69f] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-10">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
                             xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                         LOGIN
 
-                    </button>
-                    <button type="button" (click)="clicktoRegister()"
-                        class="w-full flex items-center justify-center gap-2 text-white bg-[#294F77] hover:bg-[#5487AE] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-4">
-                        <svg class="w-5 h-5" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
-                            <path fill="#fff"
-                                d="M136 192C136 125.7 189.7 72 256 72C322.3 72 376 125.7 376 192C376 258.3 322.3 312 256 312C189.7 312 136 258.3 136 192zM48 546.3C48 447.8 127.8 368 226.3 368L285.7 368C384.2 368 464 447.8 464 546.3C464 562.7 450.7 576 434.3 576L77.7 576C61.3 576 48 562.7 48 546.3zM544 160C557.3 160 568 170.7 568 184L568 232L616 232C629.3 232 640 242.7 640 256C640 269.3 629.3 280 616 280L568 280L568 328C568 341.3 557.3 352 544 352C530.7 352 520 341.3 520 328L520 280L472 280C458.7 280 448 269.3 448 256C448 242.7 458.7 232 472 232L520 232L520 184C520 170.7 530.7 160 544 160z" />
-                        </svg>
-                        Register
                     </button>
                 </form>
 

@@ -35,9 +35,14 @@ export class Homecomponent implements OnInit {
   private authSrv = inject(AuthServices);
   private swalSrv = inject(SwalServices);
 
-  ngOnInit(): void {
+  async ngOnInit() {
     this.user = this.authSrv.getUser()
+    if (this.user?.wardcode) {
+    this.selectedWard = this.user.wardcode; 
+  }
     this.loadWardList();
+    console.log("ward",this.user)
+    await this.swalSrv.loadingAlert({ title: 'กำลังโหลดข้อมูล', text: 'กรุณารอสักครู่...', timer: 1000 });
   }
 
 
@@ -48,6 +53,7 @@ export class Homecomponent implements OnInit {
       this.wards = res.msg;
       this.wardSrv.setWardLists(this.wards);
     });
+    
 
   }
 
@@ -86,32 +92,6 @@ export class Homecomponent implements OnInit {
     }
   }
 
-  async clickcheckqrcode() {
-    if (!this.user) {
-      this.swalSrv.errorAlert({ title: 'เกิดข้อผิดพลาด', text: 'กรุณา LOGIN' });
-      return;
-    }
-    await Swal.fire({
-      title: 'QR CODE ของคุณ',
-      html: `
-      <div class="flex flex-col items-center justify-center">
-        <div class="p-4 bg-linear-to-br from-[#E0F7FA] to-[#B2EBF2] rounded-2xl shadow-inner border-4 border-[#2292AD]">
-        <img src="https://api.qrserver.com/v1/create-qr-code/?data=${this.user!.rf_id}&size=180x180" 
-             alt="QR Code" style="margin: 10px; border-radius: 10px; text-align: center;" />
-      </div>
-      <p class="text-center text-gray-600 mt-6 text-lg font-medium">
-                    RF_ID : <span class="text-[#2292AD] font-bold">${this.user!.rf_id}</span>
-                </p>
-      </div>
-    `,
-      showConfirmButton: false,
-      showCloseButton: true, // 🔹 ปุ่มกากบาทปิด
-      background: '#fff',
-      width: 800,
-    });
 
-    console.log("qrcode", this.user!.rf_id);
-
-  }
 
 }

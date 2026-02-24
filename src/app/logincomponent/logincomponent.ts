@@ -13,8 +13,8 @@ import Swal from 'sweetalert2';
   imports: 
   [
     Footercomponent,
-          CommonModule,
-      FormsModule
+    CommonModule,
+    FormsModule
   ],
   templateUrl: './logincomponent.html',
   styleUrl: './logincomponent.css',
@@ -46,7 +46,7 @@ export class Logincomponent implements OnInit {
     this.isModalOpen = false;
   }
   async clicktologin() {
-    if (!this.loginname || !this.password) {
+    if ( !this.password) {
       this.swalSrv.warningAlert({ title: 'กรอกไม่ครบ', text: 'กรุณากรอก username และ password' });
       return;
     }
@@ -54,7 +54,7 @@ export class Logincomponent implements OnInit {
     this.swalSrv.loadingAlert({ title: 'Please wait', text: 'กำลังตรวจสอบ...' });
 
     try {
-      const res = await this.authSrv.userLogin(this.loginname, this.password);
+      const res = await this.authSrv.userLogin( this.password);
       Swal.close();
 
       if (res.status === 200) {
@@ -86,32 +86,9 @@ export class Logincomponent implements OnInit {
     console.log('clicktohome');
   }
 
-  clicktoPageadmin() {
-    this.swalSrv.loadingAlert({ title: 'Please wait', text: 'กำลังโหลด...' });
-    this.router.navigate(['/pageadmin'])
-    console.log('clicktoRegister');
-  }
 
-  openAdminModal() {
-    this.isAdminModalOpen = true;
-  }
 
-  closeAdminModal() {
-    this.isAdminModalOpen = false;
-    this.adminCode = '';
-  }
 
-  confirmAdminCode() {
-    if (this.adminCode !== '1112') {
-      this.swalSrv.errorAlert({
-        title: 'รหัสไม่ถูกต้อง',
-        text: 'กรุณากรอกรหัสผู้ดูแลระบบให้ถูกต้อง'
-      });
-      return;
-    }
 
-    this.closeAdminModal();
-    this.swalSrv.loadingAlert({ title: 'Please wait', text: 'กำลังโหลด...' });
-    this.router.navigate(['/pageadmin']);
-  }
+
 }

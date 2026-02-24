@@ -1,6 +1,6 @@
 import { Component, ElementRef, ViewChild, Input, SimpleChanges, inject, EventEmitter, Output } from '@angular/core';
 import { Dashboard } from '../../shared/interfaces/dashboard';
-import { Detail } from '../../shared/interfaces/detail';
+import { CreateTimeLocker, Detail } from '../../shared/interfaces/detail';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthServices } from '../../shared/services/auth-services';
@@ -27,6 +27,8 @@ export class FromDetailComponent {
 
   @Input() orderDetails: Detail[] = [];
   @Input() selectedOrder!: Dashboard;
+  @Input() inLockerTime: Date | null = null;
+@Input() outLockerTime: Date | null = null;
   @Output() received = new EventEmitter<void>();
   @Output() goUnitDose = new EventEmitter<void>();
 
@@ -37,6 +39,7 @@ export class FromDetailComponent {
   user!: User | undefined
   allowedOrderStates = [0, 6, 14, 15, 16];
   checkedData: Detail[] = [];
+  
 
 
   lastOrderScan: {
@@ -126,6 +129,7 @@ searchdrug() {
   }
 
   toggleCheckAll() {
+    
     this.filteredOrderDetails.forEach(item => {
       item.checked = this.checkAll;
     });
@@ -144,6 +148,9 @@ searchdrug() {
   canReceiveDrug(item?: Detail | null): boolean {
     if (!this.user) return false;
     if (!item) return false;
+    if (this.selectedOrder?.ward !== this.user.wardcode) {
+    return false;
+  }
     return this.allowedOrderStates.includes(item.order_state_ot);
   }
 
@@ -160,11 +167,23 @@ searchdrug() {
     return !!this.user;
   }
 
+  get canOperateThisOrder(): boolean {
+  if (!this.user || !this.selectedOrder) return false;
+  return this.user.wardcode === this.selectedOrder.ward;
+}
+
   async confirmReceive() {
     if (!this.user) {
       this.swalSrv.errorAlert({
         title: 'ต้อง login ก่อน',
         text: 'กรุณาเข้าสู่ระบบก่อนรับยา'
+      });
+      return;
+    }
+    
+    if(this.selectedOrder?.ward !== this.user.wardcode) {
+      this.swalSrv.errorAlert({
+        title: 'ไม่ใช่ ward ของคุณ'
       });
       return;
     }
@@ -183,7 +202,7 @@ searchdrug() {
         Number(this.selectedOrder.order_number),
         item.icode,
         item.item_index,
-        this.user.loginname ?? '',
+        this.user.wardname,
         item.qty,
         item.order_state
       );

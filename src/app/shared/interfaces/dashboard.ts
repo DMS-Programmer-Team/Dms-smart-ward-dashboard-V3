@@ -29,6 +29,8 @@ export interface Dashboard {
   unitdose: string;
   lock_state : number;
   create_at: string;
+    create_time_locker?: string | null;
+
 }
 
 

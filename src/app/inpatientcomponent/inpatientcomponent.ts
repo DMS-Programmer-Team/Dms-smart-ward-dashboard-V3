@@ -8,7 +8,7 @@ import { DashboarServices } from '../shared/services/dashboar-services';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { Ward } from '../shared/interfaces/ward';
 import { WardServices } from '../shared/services/ward-services';
-import { Detail,  PackUnitDose } from '../shared/interfaces/detail';
+import { CreateTimeLocker, Detail,  PackUnitDose } from '../shared/interfaces/detail';
 import { FromDetailComponent } from '../modal/from-detail-component/from-detail-component';
 import { SwalServices } from '../shared/services/swal-services';
 import Swal from 'sweetalert2';
@@ -47,6 +47,9 @@ export class Inpatientcomponent {
   user!: User | undefined
   selectedStateCard: number | null = null;
   showBadge: boolean = false;
+  createTimeLocker: CreateTimeLocker | null = null;
+  inLockerTime: Date | null = null;
+outLockerTime: Date | null = null;
 
   pages: number = 1;
   itemsPerPage: number = 10;
@@ -142,6 +145,15 @@ export class Inpatientcomponent {
       }
     });
 
+     this.dashboardSrv.oncreateatlocker().subscribe(res => {
+  if (res.status === 200 && res.data?.length) {
+    const inLocker = res.data.find((x: any) => x.lock_state === 1);
+    const outLocker = res.data.find((x: any) => x.lock_state === 2 || x.lock_state === 3);
+
+    this.inLockerTime = inLocker?.create_at ?? null;
+    this.outLockerTime = outLocker?.create_at ?? null;
+  }
+});
 
 
 
@@ -206,6 +218,8 @@ export class Inpatientcomponent {
 
     this.swalSrv.loadingAlert2();
     this.dashboardSrv.getdetail(item.hn, item.order_number);
+      this.dashboardSrv.getcreateatlocker(item.order_number);
+
 
     this.dashboardSrv.ondetail().subscribe(res => {
       // console.log("ondetail res", res);

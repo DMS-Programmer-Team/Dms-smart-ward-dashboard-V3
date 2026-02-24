@@ -15,22 +15,23 @@
         <span class="text-black">วอร์ด : {{ order.wardname }}</span>
       </div>
 
-      <div class="flex flex-row gap-10 mt-4">
-        <span class="text-black">
-          เวลานำเข้า Locker : {{ order.lock_state === 1 && order.create_at ? (order.create_at | date:'HH:mm') + ' น.' :
-          '-' }}
-        </span>
+<div class="flex flex-row gap-10 mt-4">
 
-        <span class="text-black">เวลานำออก Locker :
-          {{(order.lock_state === 2 || order.lock_state === 3) ? ((order.create_at | date:'HH:mm') || '-') +
-          ((order.create_at | date:'HH:mm') ? ' น.' : ''): '-'}}
-        </span>
+  <span class="text-black">
+    เวลานำเข้า Locker :
+    {{ inLockerTime ? (inLockerTime | date:'HH:mm') + ' น.' : '-' }}
+  </span>
 
-      </div>
+  <span class="text-black">
+    เวลานำออก Locker :
+    {{ outLockerTime ? (outLockerTime | date:'HH:mm') + ' น.' : '-' }}
+  </span>
+
+</div>
 
       <div class="border-b border-gray-400 mt-4"></div>
 
-      <div *ngIf="isLogin" class="flex justify-end gap-4 mt-4">
+      <div *ngIf="isLogin && canOperateThisOrder" class="flex justify-end gap-4 mt-4">
         <span class="text-black text-lg">Check All</span>
         <input type="checkbox" class="checkbox checkbox-xl checkbox-success" [(ngModel)]="checkAll"
           (change)="toggleCheckAll()" />
@@ -113,7 +114,7 @@
                 <td class="text-center font-semibold"> {{ i + 1 }} </td>
                 <td class="text-red-600"> {{ data.genericname }} </td>
                 <td class="text-center">
-                  <input *ngIf="isLogin" type="checkbox" checked="checked"
+                  <input *ngIf="isLogin && canOperateThisOrder" type="checkbox" checked="checked"
                     class="checkbox checkbox-lg checkbox-success mt-2" [(ngModel)]="data.checked"
                     (change)="onCheckItem(data)" (click)="$event.stopPropagation()" />
                 </td>

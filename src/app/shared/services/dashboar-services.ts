@@ -186,6 +186,26 @@ export class DashboarServices {
     );
   }
 
+  // -------------- create_at_time_locker ------------------
+
+  getcreateatlocker(order_number: string): void {
+    try {
+      this.socketSrv.emit('get_create_time_locker', {  order_number });
+    } catch (error) {
+      console.error('Emit get_create_time_locker error:', error);
+    }
+  }
+
+  oncreateatlocker(): Observable<any> {
+    return this.socketSrv.on<any>('create_time_locker').pipe(
+      catchError(error => {
+        console.error('Socket create_time_locker error:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+
   // -------------- set IPD login status ------------------
 
   setIPDLogin(flag: boolean) {

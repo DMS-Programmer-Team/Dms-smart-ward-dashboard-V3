@@ -89,18 +89,6 @@ selectPackUnitDose(pack: PackDrugUnitDose) {
     }
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
   goBack() {
     this.close();          // ปิด Unit Dose modal
     this.back.emit();      // แจ้ง parent ให้เปิด modal หลัก
