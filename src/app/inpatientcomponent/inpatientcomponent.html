@@ -1,6 +1,5 @@
-<app-from-detail-component #detailModal [selectedOrder]="selectedOrder" [orderDetails]="orderDetails"  [inLockerTime]="inLockerTime"  [outLockerTime]="outLockerTime"
-
-    (goUnitDose)="openUnitDoseModal()">
+<app-from-detail-component #detailModal [selectedOrder]="selectedOrder" [orderDetails]="orderDetails"
+    [inLockerTime]="inLockerTime" [outLockerTime]="outLockerTime" (goUnitDose)="openUnitDoseModal()">
     ></app-from-detail-component>
 
 <app-from-detail-unit-dose #unitDoseModal [selectedOrder]="selectedOrder" [orderDetails]="[]" (back)="backToMain()"
@@ -170,7 +169,7 @@
     </div>
 
     <!-- Search / Filter -->
-    <div class="grid grid-cols-6 gap-4 mt-4">
+    <div class="grid grid-cols-7 gap-3 mt-2">
 
         <div class="col-span-1 flex items-center gap-2 p-2">
             <label class="select w-full bg-white border-2 border-[#1581BF] ">
@@ -199,6 +198,21 @@
                 <span class="label text-black">AN</span>
                 <input type="text" placeholder="ค้นหาด้วย AN" class="text-black" [(ngModel)]="filters.an"
                     (keyup)="search()" />
+            </label>
+        </div>
+
+        <div class="col-span-1 flex items-center gap-2 p-2">
+            <label class="input w-full bg-white border-2 border-[#1581BF]">
+                <span class="label text-black">ประเภท</span>
+
+                <select class="w-full bg-white text-black outline-none" [(ngModel)]="filters.order_type"
+                    (change)="search()">
+                    <option value="">ทั้งหมด</option>
+                    <option value="E">STAT</option>
+                    <option value="N">NEW</option>
+                    <option value="C">CON</option>
+                </select>
+
             </label>
         </div>
 
@@ -260,15 +274,17 @@
                     <td>{{ item.patient_name || '-' }}</td>
                     <td>{{ item.wardname || '-' }}</td>
                     <td>
-                        <span class="badge bg-[#E45A92] badge-xl border-[#E45A92] text-white" *ngIf="item.order_type?.trim() === 'C'">
+                        <span class="badge bg-[#E45A92] badge-xl border-[#E45A92] text-white"
+                            *ngIf="item.order_type?.trim() === 'C'">
                             CON
                         </span>
 
-                        <span class="badge badge-success badge-xl text-white"*ngIf="item.order_type?.trim() === 'N'">
+                        <span class="badge badge-success badge-xl text-white" *ngIf="item.order_type?.trim() === 'N'">
                             NEW
                         </span>
 
-                        <span class="badge bg-[#D30000] border-[#D30000] badge-xl text-white" *ngIf="item.order_type?.trim() === 'E'">
+                        <span class="badge bg-[#D30000] border-[#D30000] badge-xl text-white"
+                            *ngIf="item.order_type?.trim() === 'E'">
                             STAT
                         </span>
                     </td>
@@ -276,7 +292,7 @@
 
                     <!-- <td>{{ item.lock_state === 1 ? (item.create_at | date:'HH:mm') + ' น.' : '-' }}</td>
                     <td>{{ item.lock_state == 2 || item.lock_state == 3 ? (item.create_at | date:'HH:mm') + ' น.' : '-' }}</td> -->
-                    
+
                     <td>
                         <span class="badge badge-xl text-white" [ngClass]="{
                             'bg-[#44444E] border-[#44444E]': item.order_state < 3,

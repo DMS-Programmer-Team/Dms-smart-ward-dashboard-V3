@@ -16,6 +16,8 @@ import { Dashboard } from '../../shared/interfaces/dashboard';
 })
 export class FromDetailHomeComponent {
   @ViewChild('modalOPD') modal!: ElementRef<HTMLDialogElement>;
+  @ViewChild('imageModal') imageModal!: ElementRef<HTMLDialogElement>;
+
 
   @Input() orderDetails: Detail[] = [];
   @Input() selectedOrder!: Dashboard;
@@ -23,6 +25,8 @@ export class FromDetailHomeComponent {
   selectedDrug: Detail | null = null;
   searchText: string = '';
   filteredOrderDetails: Detail[] = [];
+  selectedImage: string = '';
+
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['orderDetails'] && this.orderDetails?.length) {
@@ -58,4 +62,15 @@ export class FromDetailHomeComponent {
       drug.genericname?.toLowerCase().includes(text)
     );
   }
+
+
+    openImage(img?: string | null) {
+    this.selectedImage = img || './drugs.gif';
+    this.imageModal.nativeElement.showModal();
+  }
+
+  closeImage() {
+    this.imageModal.nativeElement.close();
+  }
+
 }

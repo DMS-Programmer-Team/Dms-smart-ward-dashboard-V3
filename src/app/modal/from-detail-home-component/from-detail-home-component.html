@@ -24,7 +24,10 @@
 
         <div class="flex flex-col">
           <div class="flex justify-center items-center border-2 border-gray-100 rounded-2xl p-2">
-            <img [src]="selectedDrug?.drug_image_base64 || './drugs.gif'" alt="">
+          <img 
+            [src]="selectedDrug?.drug_image_base64 || './drugs.gif'"
+            class="cursor-pointer hover:scale-105 transition"
+            (click)="openImage(selectedDrug?.drug_image_base64)">          
           </div>
         </div>
 
@@ -77,5 +80,21 @@
 
     </div>
 
+  </div>
+</dialog>
+
+<dialog #imageModal class="modal bg-black/70" (click)="closeImage()">
+  <div class="modal-box bg-transparent shadow-none flex justify-center items-center max-w-6xl"
+       (click)="$event.stopPropagation()">
+
+    <button
+      class="btn btn-sm btn-circle absolute right-4 top-4 bg-white text-red-400"
+      (click)="closeImage()">
+      ✕
+    </button>
+
+    <img
+      [src]="selectedImage"
+      class="max-h-[85vh] object-contain rounded-xl shadow-2xl">
   </div>
 </dialog>

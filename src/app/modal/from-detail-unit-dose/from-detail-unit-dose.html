@@ -25,14 +25,14 @@
         <div class="flex flex-col">
           <div class="flex justify-center items-center border-2 border-gray-100 rounded-2xl p-2">
             <img *ngIf="packDrugDetail?.pack_image; else defaultImg" [src]="packDrugDetail?.pack_image"
-              alt="Pack Image">
+              alt="Pack Image"  class="cursor-pointer hover:scale-105 transition" (click)="openImage(packDrugDetail?.pack_image)" >
             <ng-template #defaultImg>
               <img src="./drugs.gif" alt="">
             </ng-template>
           </div>
 
           <div *ngIf="packDrugDetail" class="flex flex-col mt-4 gap-4">
-            <span class="text-black text-ml">PACK : UNITDOSE {{ packDrugDetail.pack_number }}</span>
+            <span class="text-black text-ml">PACK : UNITDOSE PACK {{ packDrugDetail.pack_number }}</span>
             <span class="text-black text-ml">มื้อ : {{ packDrugDetail.take_time }}</span>
             <span class="text-black text-ml text-center">รายการยา</span>
           </div>
@@ -66,8 +66,11 @@
               <span class="text-black">วิธีกิน: {{drug.drug_help}}</span>
 
               <div class="flex justify-center">
-                <img [src]="drug.drug_image || './drugs.gif'" alt="Drug Image"
-                  class="w-16 h-16 object-contain border rounded-xl">
+                <img 
+                  [src]="drug.drug_image || './drugs.gif'"
+                  class="w-16 h-16 object-contain border rounded-xl cursor-pointer hover:scale-110 transition"
+                  (click)="openImage(drug.drug_image)"
+                >
               </div>
             </div>
 
@@ -105,7 +108,7 @@
             <thead class="bg-[#1581BF] text-white">
               <tr class="text-center">
                 <th class="text-center w-12">#</th>
-                <th>unitdose</th>
+                <th>UNITDOSE PACK</th>
                 <th class="text-center w-12"></th>
               </tr>
             </thead>
@@ -113,7 +116,7 @@
               <tr *ngFor="let pack of packUnitDose; let i = index" class="text-center text-black text-lg cursor-pointer"
                 [ngClass]="{'bg-gray-100': i % 2 === 0, 'bg-white': i % 2 !== 0 }" (click)="selectPackUnitDose(pack)">
                 <td class="text-center font-semibold">{{ i + 1 }}</td>
-                <td class="text-[#D30000]  text-center "> UNITDOSE {{pack.pack_number}} </td>
+                <td class="text-[#D30000]  text-center "> UNITDOSE PACK {{pack.pack_number}} </td>
                 <td class="text-center font-semibold"></td>
               </tr>
 
@@ -132,5 +135,21 @@
 
     </div>
 
+  </div>
+</dialog>
+
+
+<dialog #imageModal class="modal bg-black/70">
+  <div class="modal-box bg-transparent shadow-none flex justify-center items-center max-w-6xl">
+
+    <button
+      class="btn btn-sm btn-circle absolute right-4 top-4 bg-white text-red-400"
+      (click)="closeImage()">
+      ✕
+    </button>
+
+    <img
+      [src]="selectedImage"
+      class="max-h-[85vh] object-contain rounded-xl shadow-2xl">
   </div>
 </dialog>

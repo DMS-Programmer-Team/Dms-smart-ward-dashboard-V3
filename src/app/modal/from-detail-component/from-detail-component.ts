@@ -23,12 +23,13 @@ export class FromDetailComponent {
 
   @ViewChild('modal') modal!: ElementRef<HTMLDialogElement>;
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('imageModal') imageModal!: ElementRef<HTMLDialogElement>;
 
 
   @Input() orderDetails: Detail[] = [];
   @Input() selectedOrder!: Dashboard;
   @Input() inLockerTime: Date | null = null;
-@Input() outLockerTime: Date | null = null;
+  @Input() outLockerTime: Date | null = null;
   @Output() received = new EventEmitter<void>();
   @Output() goUnitDose = new EventEmitter<void>();
 
@@ -39,7 +40,8 @@ export class FromDetailComponent {
   user!: User | undefined
   allowedOrderStates = [0, 6, 14, 15, 16];
   checkedData: Detail[] = [];
-  
+  selectedImage: string = '';
+
 
 
   lastOrderScan: {
@@ -102,12 +104,12 @@ export class FromDetailComponent {
     this.modal.nativeElement.close();
   }
 
-searchdrug() {
-  const text = this.searchText.toLowerCase().trim();
-  this.filteredOrderDetails = this.orderDetails
-    .filter(drug => drug.order_state_ot !== 8)  
-    .filter(drug => drug.genericname?.toLowerCase().includes(text)); 
-}
+  searchdrug() {
+    const text = this.searchText.toLowerCase().trim();
+    this.filteredOrderDetails = this.orderDetails
+      .filter(drug => drug.order_state_ot !== 8)
+      .filter(drug => drug.genericname?.toLowerCase().includes(text));
+  }
 
 
   onTyping(event: KeyboardEvent) {
@@ -129,7 +131,7 @@ searchdrug() {
   }
 
   toggleCheckAll() {
-    
+
     this.filteredOrderDetails.forEach(item => {
       item.checked = this.checkAll;
     });
@@ -149,8 +151,8 @@ searchdrug() {
     if (!this.user) return false;
     if (!item) return false;
     if (this.selectedOrder?.ward !== this.user.wardcode) {
-    return false;
-  }
+      return false;
+    }
     return this.allowedOrderStates.includes(item.order_state_ot);
   }
 
@@ -168,9 +170,9 @@ searchdrug() {
   }
 
   get canOperateThisOrder(): boolean {
-  if (!this.user || !this.selectedOrder) return false;
-  return this.user.wardcode === this.selectedOrder.ward;
-}
+    if (!this.user || !this.selectedOrder) return false;
+    return this.user.wardcode === this.selectedOrder.ward;
+  }
 
   async confirmReceive() {
     if (!this.user) {
@@ -180,8 +182,8 @@ searchdrug() {
       });
       return;
     }
-    
-    if(this.selectedOrder?.ward !== this.user.wardcode) {
+
+    if (this.selectedOrder?.ward !== this.user.wardcode) {
       this.swalSrv.errorAlert({
         title: 'ไม่ใช่ ward ของคุณ'
       });
@@ -448,12 +450,19 @@ searchdrug() {
     this.filteredOrderDetails = this.orderDetails.filter(d => d.order_state_ot !== 8);
   }
 
-get hasUnitDose(): boolean {
-  return this.selectedOrder?.unitdose === 'Y';
-}
+  get hasUnitDose(): boolean {
+    return this.selectedOrder?.unitdose === 'Y';
+  }
 
 
+  openImage(img?: string | null) {
+    this.selectedImage = img || './drugs.gif';
+    this.imageModal.nativeElement.showModal();
+  }
 
+  closeImage() {
+    this.imageModal.nativeElement.close();
+  }
 
 
 

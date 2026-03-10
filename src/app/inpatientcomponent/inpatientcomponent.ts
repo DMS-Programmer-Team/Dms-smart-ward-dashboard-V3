@@ -60,6 +60,7 @@ outLockerTime: Date | null = null;
     an: '',
     name: '',
     date: '',
+    order_type: '',
     orderState: null as number | null
   };
 
@@ -172,6 +173,7 @@ outLockerTime: Date | null = null;
       an: this.filters.an,
       name: this.filters.name,
       date: this.filters.date,
+      order_type: this.filters.order_type,
       orderState: this.filters.orderState
     });
 
@@ -185,6 +187,7 @@ outLockerTime: Date | null = null;
       hn: '',
       an: '',
       name: '',
+      order_type: '',
       date: new Date().toISOString().substring(0, 10),
       orderState: null
     };

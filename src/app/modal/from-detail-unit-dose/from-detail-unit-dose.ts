@@ -23,6 +23,7 @@ import { DashboarServices } from '../../shared/services/dashboar-services';
 export class FromDetailUnitDose {
 
   @ViewChild('modalUnitDose') modal!: ElementRef<HTMLDialogElement>;
+  @ViewChild('imageModal') imageModal!: ElementRef<HTMLDialogElement>;
 
   @Input() orderDetails: PackUnitDose[] = [];
   @Input() selectedOrder!: Dashboard;
@@ -33,6 +34,7 @@ export class FromDetailUnitDose {
 
   packDrugDetail: PackDrugUnitDose | null = null;
   selectedDrug?: DrugUnitDose;
+  selectedImage: string = '';
 
 
   private authSrv = inject(AuthServices);
@@ -92,6 +94,15 @@ selectPackUnitDose(pack: PackDrugUnitDose) {
   goBack() {
     this.close();          // ปิด Unit Dose modal
     this.back.emit();      // แจ้ง parent ให้เปิด modal หลัก
+  }
+
+openImage(img?: string | null) {
+  this.selectedImage = img || './drugs.gif';
+  this.imageModal.nativeElement.showModal();
+}
+
+  closeImage() {
+    this.imageModal.nativeElement.close();
   }
 
 }
