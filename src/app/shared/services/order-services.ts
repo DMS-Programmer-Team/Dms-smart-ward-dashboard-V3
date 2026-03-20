@@ -15,7 +15,7 @@ export class OrderServices {
   }
 
   updateOrderApproveDrug(loginname: string, order_number: number, icode: string, hn: string): Promise<any> {
-    this.socketSrv.emit('req_update_approve_drug', { order_number, icode, loginname, hn });
+    this.socketSrv.emit('req_update_approve_drug', { loginname, order_number, icode,  hn });
     return this.socketSrv.fromOneTimeEvent<any>('update_order_approve_drug');
   }
 

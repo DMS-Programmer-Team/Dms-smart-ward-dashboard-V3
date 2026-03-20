@@ -324,6 +324,7 @@ export class Inpatientcomponent {
           icode: d.icode,
           hn
         });
+        
 
         const res = await this.ordSrv.updateOrderApproveDrug(
           loginname,

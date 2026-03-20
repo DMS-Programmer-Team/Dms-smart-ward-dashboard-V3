@@ -236,8 +236,8 @@
                         <th>ประเภท</th>
                         <th>จำนวนรายการยา</th>
                         <th>สถานะ</th>
-                        <th>ข้อมูล</th>
-                        <th>ลงเวลา</th>
+                        <th>ถึงวอร์ด</th>
+                        <th>บริหารยา</th>
                     </tr>
                 </thead>
                 <tbody *ngIf="dashboardList.length > 0; else noData">
@@ -251,20 +251,20 @@
                         <td>{{ item.patient_name }}</td>
                         <td>{{ item.wardname }}</td>
                         <td>
-                            <span class="badge  badge-warning badge-xl" *ngIf="item.order_type === 'C'">
+                            <span class="badge badge-warning badge-xl text-white" *ngIf="item.order_type === 'C ' || item.order_type === 'C'">
                                 CON
                             </span>
 
-                            <span class="badge badge-success badge-xl" *ngIf="item.order_type === 'N'">
+                            <span class="badge badge-success badge-xl text-white" *ngIf="item.order_type === 'N ' || item.order_type === 'N'">
                                 NEW
                             </span>
 
-                            <span class="badge badge-info badge-xl" *ngIf="item.order_type === 'E'">
+                            <span class="badge badge-info badge-xl text-white" *ngIf="item.order_type === 'E ' || item.order_type === 'N'">
                                 STAT
                             </span>
                         </td>
                         <td>{{ item.order_count }}</td>
-                        <td>
+                        <td class="text-white">
                             <span class="badge badge-xl" [ngClass]="{
                             'bg-[#44444E]': item.order_state < 3,
                                 'bg-[#E9A319]': [3,4,10,12].includes(item.order_state),
