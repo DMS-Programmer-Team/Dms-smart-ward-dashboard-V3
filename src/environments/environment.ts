@@ -1,8 +1,8 @@
 export const environment = {
   production: false,
-  APIEndpoint: "http://172.16.61.252/api/udh/delivery",
+  APIEndpoint: "http://10.11.6.200/api/udh/delivery",
   // socketAPI: "http://localhost:8500",
-  socketAPI: "http://172.16.61.252",
+  socketAPI: "http://10.11.6.200",
 
   USER_KEY: "userData",
 };
