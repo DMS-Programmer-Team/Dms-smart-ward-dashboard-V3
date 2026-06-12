@@ -78,6 +78,10 @@ export interface CreateTimeLocker {
   lock_state: any
 }
 
+export interface OrderSmartward{
+  order_number: number 
+  wardcode: string
+}
 
 
 

@@ -8,7 +8,7 @@ import { DashboarServices } from '../shared/services/dashboar-services';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { Ward } from '../shared/interfaces/ward';
 import { WardServices } from '../shared/services/ward-services';
-import { CreateTimeLocker, Detail,  PackUnitDose } from '../shared/interfaces/detail';
+import { CreateTimeLocker, Detail, OrderSmartward, PackUnitDose } from '../shared/interfaces/detail';
 import { FromDetailComponent } from '../modal/from-detail-component/from-detail-component';
 import { SwalServices } from '../shared/services/swal-services';
 import Swal from 'sweetalert2';
@@ -49,10 +49,14 @@ export class Inpatientcomponent {
   showBadge: boolean = false;
   createTimeLocker: CreateTimeLocker | null = null;
   inLockerTime: Date | null = null;
-outLockerTime: Date | null = null;
+  outLockerTime: Date | null = null;
 
   pages: number = 1;
   itemsPerPage: number = 10;
+
+  notifications: (LockerNotification & { id: string })[] = [];
+
+  smartWardNotifications: (OrderSmartward & { id: string })[] = [];
 
   filters = {
     ward: '000',
@@ -100,19 +104,23 @@ outLockerTime: Date | null = null;
       this.wardSrv.setWardLists(this.wards);
     });
 
+    this.reqsmartward();
+
+
     this.socket.fromEvent<LockerNotification>('locker-new').subscribe((data) => {
-      console.log('Locker new event:', data);
 
-      //  แสดง badge เฉพาะ ward ที่ตรงกับ wardValue
       if (data.wardcode === this.filters.ward) {
-        console.log('Selected ward:', this.filters.ward, 'Incoming ward:', data.wardcode);
-        this.showBadge = true;
+        const exists = this.notifications.some(
+          x => JSON.stringify(x.order_number) === JSON.stringify(data.order_number)
+        );
+        if (!exists) {
+          this.notifications.unshift({
+            ...data,
+            id: Date.now().toString()
+          });
+        }
       }
 
-      // ตัวอย่างกรณี hello client
-      if (data?.msg?.toLowerCase() === 'hello client') {
-        console.log('Client connected message received', data);
-      }
     });
 
     this.dashboardSrv.onDataOrderIPD().subscribe(res => {
@@ -146,19 +154,19 @@ outLockerTime: Date | null = null;
       }
     });
 
-     this.dashboardSrv.oncreateatlocker().subscribe(res => {
-  if (res.status === 200 && res.data?.length) {
-    const inLocker = res.data.find((x: any) => x.lock_state === 1);
-    const outLocker = res.data.find((x: any) => x.lock_state === 2 || x.lock_state === 3);
+    this.dashboardSrv.oncreateatlocker().subscribe(res => {
+      if (res.status === 200 && res.data?.length) {
+        const inLocker = res.data.find((x: any) => x.lock_state === 1);
+        const outLocker = res.data.find((x: any) => x.lock_state === 2 || x.lock_state === 3);
 
-    this.inLockerTime = inLocker?.create_at ?? null;
-    this.outLockerTime = outLocker?.create_at ?? null;
+        this.inLockerTime = inLocker?.create_at ?? null;
+        this.outLockerTime = outLocker?.create_at ?? null;
+      }
+    });
   }
-});
 
 
 
-  }
 
   loadDashboard() {
     this.socket.emit('get_dataorder_ipd', {
@@ -221,7 +229,7 @@ outLockerTime: Date | null = null;
 
     this.swalSrv.loadingAlert2();
     this.dashboardSrv.getdetail(item.hn, item.order_number);
-      this.dashboardSrv.getcreateatlocker(item.order_number);
+    this.dashboardSrv.getcreateatlocker(item.order_number);
 
 
     this.dashboardSrv.ondetail().subscribe(res => {
@@ -287,41 +295,41 @@ outLockerTime: Date | null = null;
     const hn = this.selectedOrder.hn;
     const order_number = this.selectedOrder.order_number;
 
-const sub = this.socket.fromEvent<any>('order_pack_unitdose')
-  .subscribe(res => {
-    Swal.close(); // ปิด loading
+    const sub = this.socket.fromEvent<any>('order_pack_unitdose')
+      .subscribe(res => {
+        Swal.close(); // ปิด loading
 
-    if (res.status === 200 && res.data?.length > 0) {
+        if (res.status === 200 && res.data?.length > 0) {
 
-      // ส่งข้อมูลทั้งหมดให้ modal
-      this.unitDoseModal.packUnitDose = res.data.map((x: any) => ({
-        pack_id: x.id,
-        pack_number: x.pack_number,
-        take_time: x.take_time,
-        pack_image: x.pack_image
-      }));
+          // ส่งข้อมูลทั้งหมดให้ modal
+          this.unitDoseModal.packUnitDose = res.data.map((x: any) => ({
+            pack_id: x.id,
+            pack_number: x.pack_number,
+            take_time: x.take_time,
+            pack_image: x.pack_image
+          }));
 
-      this.unitDoseModal.selectedOrder = this.selectedOrder;
+          this.unitDoseModal.selectedOrder = this.selectedOrder;
 
-      // เปิด modal
-      this.unitDoseModal.open();
+          // เปิด modal
+          this.unitDoseModal.open();
 
-    } else {
-      this.unitDoseModal.packUnitDose = [];
-      this.swalSrv.infoAlert({
-        title: 'ไม่พบยา UNIT DOSE',
-        text: 'รายการนี้ไม่มีข้อมูล UNIT DOSE'
+        } else {
+          this.unitDoseModal.packUnitDose = [];
+          this.swalSrv.infoAlert({
+            title: 'ไม่พบยา UNIT DOSE',
+            text: 'รายการนี้ไม่มีข้อมูล UNIT DOSE'
+          });
+        }
+
+        sub.unsubscribe();
       });
-    }
 
-    sub.unsubscribe();
-  });
-
-  const d = new Date(this.selectedOrder.order_date);
-  const localDate = d.toLocaleDateString('en-CA'); // YYYY-MM-DD
+    const d = new Date(this.selectedOrder.order_date);
+    const localDate = d.toLocaleDateString('en-CA'); // YYYY-MM-DD
 
     // ส่ง request ไป server
-    this.socket.emit('get_pack_unitdose', { hn, order_number, order_date:localDate });
+    this.socket.emit('get_pack_unitdose', { hn, order_number, order_date: localDate });
     console.log("get_pack_unitdose", hn, order_number, localDate);
   }
 
@@ -336,24 +344,93 @@ const sub = this.socket.fromEvent<any>('order_pack_unitdose')
 
 
   clicktohome() {
-   this.swalSrv.loadingAlert({ title: 'Please wait', text: 'Searching for information' });
+    this.swalSrv.loadingAlert({ title: 'Please wait', text: 'Searching for information' });
     this.router.navigate(['/home']).then(() => {
       window.location.reload();
     });
   }
-  
 
 
-/////////////// PACK DRUG UNIT DOSE /////////////////////////
-handleSelectPack(event: { pack_number: number, hn: string }) {
-  console.log('Selected pack:', event);
-   
+
+  /////////////// PACK DRUG UNIT DOSE /////////////////////////
+  handleSelectPack(event: { pack_number: number, hn: string }) {
+    console.log('Selected pack:', event);
+
+  }
+
+
+  loadSmartWardNotification() {
+    this.socket.emit('get_order_smart_ward');
+  }
+
+async removeSmartWardNotification( id: string, order_number: number) {
+
+  try {
+    const res =
+      await this.dashboardSrv.updateOrderSmartWard( order_number );
+    if (res.status === 200) {
+      this.smartWardNotifications =
+        this.smartWardNotifications.filter(
+          x => x.id !== id
+        );
+    }
+  } catch (error) {
+    console.error(error);
+  }
+
+}
+
+async removeNotification(id: string, order_number: number[]) {
+  try {
+
+    const res =
+      await this.dashboardSrv.updateOrderSmartLocker(order_number);
+
+    if (res.status === 200) {
+      this.notifications =
+        this.notifications.filter(x => x.id !== id);
+    }
+
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 
+  reqsmartward() {
+
+    this.dashboardSrv.orderSmartward()
+      .subscribe(res => {
+        if (res.status !== 200) return;
+
+        res.msg.forEach((item: any) => {
+
+          const exists = this.smartWardNotifications.some(
+            x => x.order_number === item.order_number
+          );
+
+          if (!exists) {
+            this.smartWardNotifications.unshift({
+              ...item,
+              id: crypto.randomUUID()
+            });
+          }
+
+        });
+
+      });
+
+    this.loadSmartWardNotification();
+
+    setInterval(() => {
+      this.loadSmartWardNotification();
+    }, 5000);
+  }
 
 
-  
+
+
+
 
 
 

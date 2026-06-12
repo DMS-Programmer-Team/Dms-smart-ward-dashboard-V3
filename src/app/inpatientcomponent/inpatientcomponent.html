@@ -6,6 +6,46 @@
     (selectPack)="handleSelectPack($event)">
 </app-from-detail-unit-dose>
 
+<div class="toast toast-top toast-end z-50">
+
+  <!-- Locker -->
+  <div
+    *ngFor="let noti of notifications"
+    class="alert alert-info shadow-lg flex items-center gap-4 mb-2">
+
+    <span>
+      <i class="fa-solid fa-bell"></i>
+      มีรายการยาเข้าตู้ Smart Locker ใหม่
+    </span>
+
+    <button
+      class="btn btn-xs btn-circle btn-ghost"
+      (click)="removeNotification(noti.id, noti.order_number)">
+      ✕
+    </button>
+
+  </div>
+
+  <!-- Smart Ward -->
+  <div
+    *ngFor="let noti of smartWardNotifications"
+    class="alert alert-warning shadow-lg flex items-center gap-4 mb-2">
+
+    <span>
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      มีรายการยาเข้าตู้ Smart Ward ใหม่
+    </span>
+
+    <button
+      class="btn btn-xs btn-circle btn-ghost"
+      (click)="removeSmartWardNotification(noti.id, noti.order_number)">
+      ✕
+    </button>
+
+  </div>
+
+</div>
+
 <div class="px-4 py-4">
     <!-- ปุ่มย้อนกลับ -->
     <div class="flex flex-row justify-between">
@@ -67,7 +107,7 @@
 
 
     <!-- Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 mt-4">
+    <div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 gap-4 mt-4">
         <!-- Card 1 -->
         <div class="bg-[#44444E] text-white shadow-xl rounded-lg border-2 border-transparent 
                 transition-all duration-300 ease-in-out
@@ -119,18 +159,18 @@
             (click)="filterByState(4); clearBadge()">
 
             <!-- Badge Notification -->
-            <div class="indicator absolute top-2 right-2" *ngIf="showBadge">
+            <!-- <div class="indicator absolute top-2 right-2" *ngIf="showBadge">
                 <span class="indicator-item badge badge-primary 
                badge-lg font-bold text-white 
                shadow-lg animate-pulse">
                     New
                 </span>
-            </div>
+            </div> -->
 
 
             <div class="flex flex-row">
                 <i class="fa-solid fa-building-lock text-3xl md:text-4xl ml-2 mt-2"></i>
-                <span class="text-xl md:text-2xl ml-2 mt-2">เตรียมนำส่ง</span>
+                <span class="text-xl md:text-2xl ml-2 mt-2">อยู่ในล็อกเกอร์</span>
             </div>
 
             <div class="flex items-center justify-center">
@@ -139,7 +179,7 @@
         </div>
 
         <!-- Card 5 -->
-        <div class="bg-[#001A6E] text-white shadow-xl rounded-lg border-2 border-transparent 
+        <!-- <div class="bg-[#001A6E] text-white shadow-xl rounded-lg border-2 border-transparent 
                 transition-all duration-300 ease-in-out 
                  hover:-translate-y-2 hover:bg-white hover:text-[#001A6E] hover:border-[#001A6E] cursor-pointer"
             (click)="filterByState(5)">
@@ -150,7 +190,7 @@
             <div class="flex items-center justify-center px-4 pb-6">
                 <span class="text-6xl md:text-8xl mt-4 mb-2 text-shadow-lg/30 ">{{ summary.state_5 }}</span>
             </div>
-        </div>
+        </div> -->
 
         <!-- Card 6 -->
         <div class="bg-[#064635] text-white shadow-xl rounded-lg border-2 border-transparent 

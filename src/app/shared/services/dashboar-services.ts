@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { SocketServices } from './socket-services';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { OrderSmartward } from '../interfaces/detail';
 
 @Injectable({
   providedIn: 'root',
@@ -204,6 +205,34 @@ export class DashboarServices {
       })
     );
   }
+
+  // orderSmartward
+orderSmartward(): Observable<any> {
+  return this.socketSrv.on<any>('order_smart_ward').pipe(
+    catchError(error => {
+      console.error('Socket order_smart_ward error:', error);
+      return throwError(() => error);
+    })
+  );
+}
+
+
+// update smart ward notification
+updateOrderSmartWard(order_number: number): Promise<any> {
+  this.socketSrv.emit('req_update_order_smart_ward', { order_number });
+
+  return this.socketSrv.fromOneTimeEvent<any>(
+    'update_order_smart_ward_result'
+  );
+}
+
+updateOrderSmartLocker(order_number: number[]): Promise<any> {
+  this.socketSrv.emit('req_update_order_smart_locker', { order_number });
+  return this.socketSrv.fromOneTimeEvent<any>(
+    'update_order_smart_locker_result'
+  );
+}
+
 
 
   // -------------- set IPD login status ------------------

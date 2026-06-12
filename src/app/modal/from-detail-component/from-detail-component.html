@@ -1,126 +1,141 @@
 <dialog #modal class="modal" id="my_modal_3">
-  <div class="modal-box w-full max-w-5xl bg-white ">
-
-    <button type="button" (click)="close()"
-      class="btn btn-sm btn-circle bg-white border-gray-400 text-red-400 absolute right-2 top-2 hover:bg-red-500 hover:text-white hover:border-red-500">
+  <div class="modal-box w-full max-w-5xl bg-white">
+    <button
+      type="button"
+      (click)="close()"
+      class="btn btn-sm btn-circle bg-white border-gray-400 text-red-400 absolute right-2 top-2 hover:bg-red-500 hover:text-white hover:border-red-500"
+    >
       ✕
     </button>
 
-    <h3 class="text-xl  items-center flex justify-center text-black">รายการยา</h3>
+    <h3 class="text-xl items-center flex justify-center text-black">รายการยา</h3>
     <div class="flex flex-col mt-4" *ngIf="selectedOrder as order">
-
       <div class="flex flex-row gap-10 text-center">
         <span class="text-black">ชื่อ-นามสกุล : {{ order.patient_name }}</span>
         <span class="text-black">HN : {{ order.hn }}</span>
         <span class="text-black">วอร์ด : {{ order.wardname }}</span>
       </div>
 
-<div class="flex flex-row gap-10 mt-4">
+      <div class="flex flex-row gap-10 mt-4">
+        <span class="text-black">
+          เวลานำเข้า Locker :
+          {{ inLockerTime ? (inLockerTime | date: 'HH:mm') + ' น.' : '-' }}
+        </span>
 
-  <span class="text-black">
-    เวลานำเข้า Locker :
-    {{ inLockerTime ? (inLockerTime | date:'HH:mm') + ' น.' : '-' }}
-  </span>
-
-  <span class="text-black">
-    เวลานำออก Locker :
-    {{ outLockerTime ? (outLockerTime | date:'HH:mm') + ' น.' : '-' }}
-  </span>
-
-</div>
+        <span class="text-black">
+          เวลานำออก Locker :
+          {{ outLockerTime ? (outLockerTime | date: 'HH:mm') + ' น.' : '-' }}
+        </span>
+      </div>
 
       <div class="border-b border-gray-400 mt-4"></div>
 
-      <div *ngIf="isLogin && canOperateThisOrder" class="flex justify-end gap-4 mt-4">
+      <!-- <div *ngIf="isLogin && canOperateThisOrder" class="flex justify-end gap-4 mt-4">
         <span class="text-black text-lg">Check All</span>
-        <input type="checkbox" class="checkbox checkbox-xl checkbox-success" [(ngModel)]="checkAll"
-          (change)="toggleCheckAll()" />
-      </div>
-
+        <input
+          type="checkbox"
+          class="checkbox checkbox-xl checkbox-success"
+          [(ngModel)]="checkAll"
+          (change)="toggleCheckAll()"
+        />
+      </div> -->
     </div>
-
 
     <div class="grid grid-cols-3 gap-4 mt-2">
       <!-- ข้อมูลยาและรูปภาพ -->
       <div class="row-span-6 rounded-2xl shadow-lg p-4">
-
         <div class="flex flex-col">
           <div class="flex justify-center items-center border-2 border-gray-100 rounded-2xl p-2">
-          <img 
-            [src]="selectedDrug?.drug_image_base64 || './drugs.gif'"
-            class="cursor-pointer hover:scale-105 transition"
-            (click)="openImage(selectedDrug?.drug_image_base64)">          
+            <img
+              [src]="selectedDrug?.drug_image_base64 || './drugs.gif'"
+              class="cursor-pointer hover:scale-105 transition"
+              (click)="openImage(selectedDrug?.drug_image_base64)"
+            />
           </div>
         </div>
 
-        <div class="flex flex-col mt-4 gap-4" *ngIf="selectedDrug as data ; else showDefaultDrug">
-
+        <div class="flex flex-col mt-4 gap-4" *ngIf="selectedDrug as data; else showDefaultDrug">
           <span class="text-black text-ml">ชื่อยา : {{ data.genericname }}</span>
-          <span class=" text-black text-ml">วิธีกินยา : {{data.take_medicine}}</span>
+          <span class="text-black text-ml">วิธีกินยา : {{ data.take_medicine }}</span>
           <span class="text-black text-ml">จำนวน : {{ data.qty }}</span>
           <span class="text-black text-ml">หน่วย : {{ data.units }}</span>
           <span class="text-black text-ml">สถานะ : {{ data.state_description_ot }}</span>
           <span class="text-black text-ml">
             เวลารับเข้า :
             {{
-            (data.state_datetime | date:'HH:mm')
-            ? (data.state_datetime | date:'HH:mm') + ' น.'
-            : '-'
+              (data.state_datetime | date: 'HH:mm')
+                ? (data.state_datetime | date: 'HH:mm') + ' น.'
+                : '-'
             }}
           </span>
-
         </div>
 
-        <div class="flex flex-col mt-2 gap-2">
+        <!-- <div class="flex flex-col mt-2 gap-2">
           <button *ngIf="canConfirmReceive" class="btn btn-success mt-2" (click)="confirmReceive()">
             {{ hasCheckedItems ? 'ยืนยันรับยาทั้งหมด' : 'ยืนยันรับยา' }}
           </button>
-        </div>
+        </div> -->
 
         <ng-template #showDefaultDrug>
-          <div class="flex justify-center items-center ">
-            <span class="text-black text-ml mt-4">กรุณาสแกนหรือเลือกรับยา</span>
+          <div class="flex justify-center items-center">
+            <span class="text-black text-ml mt-4">รายละเอียด</span>
           </div>
         </ng-template>
-
       </div>
-
 
       <!-- ข้อมูลยังไม่ได้เช็ครับยา -->
-      <div class="flex flex-col items-start justify-start">
+      <!-- <div class="flex flex-col items-start justify-start">
         <span class="text-black text-ml"><i class="fa-solid fa-magnifying-glass"></i>ค้นหา</span>
-        <input #searchInput type="search" placeholder="กรุณากรอกชื่อยา"
-          class="input bg-white text-black border border-gray-100" [(ngModel)]="searchText"
-          (keyup.enter)="onScanEnter()" (keyup)="onTyping($event)" />
-      </div>
+        <input
+          #searchInput
+          type="search"
+          placeholder="กรุณากรอกชื่อยา"
+          class="input bg-white text-black border border-gray-100"
+          [(ngModel)]="searchText"
+          (keyup.enter)="onScanEnter()"
+          (keyup)="onTyping($event)"
+        />
+      </div> -->
 
-      <div class="flex flex-row itexms-end justify-end ">
-        <button *ngIf="hasUnitDose" class="btn btn-warning mt-4" (click)="goToUnitDose()">มียา UNIT DOSE</button>
+      <div class="flex flex-row itexms-end justify-end">
+        <button *ngIf="hasUnitDose" class="btn btn-warning mt-4" (click)="goToUnitDose()">
+          มียา UNIT DOSE
+        </button>
       </div>
 
       <div class="col-span-2 row-span-2 text-black">
-        <span class="text-[#D30000] text-ml font-bold"><i class="fa-regular fa-circle-xmark"></i> Unchecked</span>
-        <div class="w-full max-w-5xl mx-auto ">
+        <span class="text-[#359D73] text-ml font-bold"
+          > รายการยา</span
+        >
+        <div class="w-full max-w-5xl mx-auto">
           <table class="table w-full border border-gray-300 rounded-lg overflow-hidden shadow-lg">
             <thead class="bg-[#1581BF] text-white">
               <tr class="text-center">
                 <th class="text-center w-12">#</th>
                 <th>ชื่อยา</th>
-                <th class="text-center w-12"></th>
+                <!-- <th class="text-center w-12"></th> -->
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let data of filteredOrderDetails; let i = index"
-                class="text-center text-black text-lg cursor-pointer" (click)="selectDrug(data)"
-                [ngClass]="{'bg-gray-100': i % 2 === 0, 'bg-white': i % 2 !== 0 }">
-
-                <td class="text-center font-semibold"> {{ i + 1 }} </td>
-                <td class="text-red-600"> {{ data.genericname }} </td>
-                <td class="text-center">
-                  <input *ngIf="isLogin && canOperateThisOrder" type="checkbox" checked="checked"
-                    class="checkbox checkbox-lg checkbox-success mt-2" [(ngModel)]="data.checked"
-                    (change)="onCheckItem(data)" (click)="$event.stopPropagation()" />
-                </td>
+              <tr
+                *ngFor="let data of filteredOrderDetails; let i = index"
+                class="text-center text-black text-lg cursor-pointer"
+                (click)="selectDrug(data)"
+                [ngClass]="{ 'bg-gray-100': i % 2 === 0, 'bg-white': i % 2 !== 0 }"
+              >
+                <td class="text-center font-semibold">{{ i + 1 }}</td>
+                <td class="text-[#359D73]">{{ data.genericname }}</td>
+                <!-- <td class="text-center">
+                  <input
+                    *ngIf="isLogin && canOperateThisOrder"
+                    type="checkbox"
+                    checked="checked"
+                    class="checkbox checkbox-lg checkbox-success mt-2"
+                    [(ngModel)]="data.checked"
+                    (change)="onCheckItem(data)"
+                    (click)="$event.stopPropagation()"
+                  />
+                </td> -->
               </tr>
 
               <tr *ngIf="filteredOrderDetails.length === 0">
@@ -129,17 +144,16 @@
                 </td>
               </tr>
             </tbody>
-
           </table>
         </div>
       </div>
 
-
-
       <!-- ข้อมูลยังที่เช็ครับยาแล้ว -->
-      <ng-container>
+      <!-- <ng-container>
         <div class="col-span-2 row-span-2 text-black">
-          <span class="text-[#359D73] text-ml font-bold"><i class="fa-regular fa-circle-check"></i> Checked</span>
+          <span class="text-[#359D73] text-ml font-bold"
+            ><i class="fa-regular fa-circle-check"></i> Checked</span
+          >
 
           <table class="table w-full border border-gray-300 rounded-lg overflow-hidden shadow-lg">
             <thead class="bg-[#1581BF] text-white">
@@ -149,42 +163,37 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let data of checkedData; let i = index" class="text-center text-black text-lg"
-                [ngClass]="{'bg-gray-100': i % 2 === 0, 'bg-white': i % 2 !== 0 }">
+              <tr
+                *ngFor="let data of checkedData; let i = index"
+                class="text-center text-black text-lg"
+                [ngClass]="{ 'bg-gray-100': i % 2 === 0, 'bg-white': i % 2 !== 0 }"
+              >
                 <td class="text-center font-semibold">{{ i + 1 }}</td>
                 <td class="text-[#359D73]">{{ data.genericname }}</td>
               </tr>
-
-              <!-- ถ้าไม่มีข้อมูล -->
               <tr *ngIf="checkedData.length === 0">
-                <td colspan="2" class="text-center text-black py-4 text-lg">
-                  ยังไม่ได้ทำการรับยา
-                </td>
+                <td colspan="2" class="text-center text-black py-4 text-lg">ยังไม่ได้ทำการรับยา</td>
               </tr>
             </tbody>
           </table>
         </div>
-      </ng-container>
-
+      </ng-container> -->
     </div>
-
-
-
   </div>
 </dialog>
 
 <dialog #imageModal class="modal bg-black/70" (click)="closeImage()">
-  <div class="modal-box bg-transparent shadow-none flex justify-center items-center max-w-6xl"
-       (click)="$event.stopPropagation()">
-
+  <div
+    class="modal-box bg-transparent shadow-none flex justify-center items-center max-w-6xl"
+    (click)="$event.stopPropagation()"
+  >
     <button
       class="btn btn-sm btn-circle absolute right-4 top-4 bg-white text-red-400"
-      (click)="closeImage()">
+      (click)="closeImage()"
+    >
       ✕
     </button>
 
-    <img
-      [src]="selectedImage"
-      class="max-h-[85vh] object-contain rounded-xl shadow-2xl">
+    <img [src]="selectedImage" class="max-h-[85vh] object-contain rounded-xl shadow-2xl" />
   </div>
 </dialog>
