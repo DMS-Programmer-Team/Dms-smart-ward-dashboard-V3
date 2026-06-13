@@ -358,16 +358,12 @@ export class Inpatientcomponent {
 
   }
 
-
-  loadSmartWardNotification() {
-    this.socket.emit('get_order_smart_ward');
-  }
-
 async removeSmartWardNotification( id: string, order_number: number) {
 
   try {
     const res =
       await this.dashboardSrv.updateOrderSmartWard( order_number );
+      console.log(res)
     if (res.status === 200) {
       this.smartWardNotifications =
         this.smartWardNotifications.filter(
@@ -383,8 +379,7 @@ async removeSmartWardNotification( id: string, order_number: number) {
 async removeNotification(id: string, order_number: number[]) {
   try {
 
-    const res =
-      await this.dashboardSrv.updateOrderSmartLocker(order_number);
+    const res =await this.dashboardSrv.updateOrderSmartLocker(order_number);
 
     if (res.status === 200) {
       this.notifications =
@@ -396,36 +391,94 @@ async removeNotification(id: string, order_number: number[]) {
   }
 }
 
+  // loadSmartWardNotification() {
+  //   const res = this.socket.emit('get_order_smart_ward');
+  //   console.log('loadSmartWardNotification',res)
+  // }
 
-  reqsmartward() {
 
-    this.dashboardSrv.orderSmartward()
-      .subscribe(res => {
-        if (res.status !== 200) return;
+reqsmartward() {
+
+  // console.log('Current ward:', this.filters.ward);
+
+  this.dashboardSrv.orderSmartward()
+    .subscribe({
+      next: (res) => {
+
+        // console.log('SMARTWARD RESPONSE', res);
+
+        if (res.status !== 200) {
+          console.log('Status not 200');
+          return;
+        }
+
+        // console.log('msg length:', res.msg?.length);
 
         res.msg.forEach((item: any) => {
 
-          const exists = this.smartWardNotifications.some(
-            x => x.order_number === item.order_number
-          );
+          // console.log('ITEM:', item);
 
-          if (!exists) {
-            this.smartWardNotifications.unshift({
-              ...item,
-              id: crypto.randomUUID()
-            });
+          const wardMatch =
+            String(item.wardcode).trim() ===
+            String(this.filters.ward).trim();
+
+          // console.log(
+          //   'COMPARE =>',
+          //   item.wardcode,
+          //   this.filters.ward,
+          //   wardMatch
+          // );
+
+          if (!wardMatch) {
+            return;
           }
 
+          const exists = this.smartWardNotifications.some(
+            x => String(x.order_number) === String(item.order_number)
+          );
+
+          // console.log(
+          //   'EXISTS:',
+          //   item.order_number,
+          //   exists
+          // );
+
+          if (!exists) {
+
+            const newItem = {
+              ...item,
+              id: Date.now().toString()
+            };
+
+            // console.log('ADD ITEM:', newItem);
+
+            this.smartWardNotifications = [
+              newItem,
+              ...this.smartWardNotifications
+            ];
+
+            // console.log(
+            //   'AFTER ADD:',
+            //   this.smartWardNotifications
+            // );
+          }
         });
 
-      });
+      },
+      error: (err) => {
+        console.error('SMARTWARD ERROR', err);
+      }
+    });
 
-    this.loadSmartWardNotification();
+  // console.log('EMIT get_order_smart_ward');
 
-    setInterval(() => {
-      this.loadSmartWardNotification();
-    }, 5000);
-  }
+  this.socket.emit('get_order_smart_ward');
+
+  setInterval(() => {
+    // console.log('EMIT get_order_smart_ward (interval)');
+    this.socket.emit('get_order_smart_ward');
+  }, 5000);
+}
 
 
 
