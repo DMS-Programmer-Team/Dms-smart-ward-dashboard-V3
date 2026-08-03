@@ -35,10 +35,15 @@ export class Homecomponent implements OnInit {
   private authSrv = inject(AuthServices);
   private swalSrv = inject(SwalServices);
 
-  ngOnInit(): void {
-    this.user = this.authSrv.getUser()
-    this.loadWardList();
+ngOnInit(): void {
+  this.user = this.authSrv.getUser();
+
+  if (this.user?.wardcode) {
+    this.selectedWard = this.user.wardcode;
   }
+
+  this.loadWardList();
+}
 
 
 

@@ -246,7 +246,7 @@
                 </tr>
             </thead>
             <tbody *ngIf="dashboardList.length > 0; else noData">
-                <tr *ngFor="let item of dashboardList | paginate: { itemsPerPage: itemsPerPage, currentPage: pages };let i = index"
+                <tr *ngFor="let item of dashboardList | paginate: { itemsPerPage: itemsPerPage, currentPage: pages };let i = index; trackBy: trackByOrder"
                     class="text-center text-xl bg-white text-black hover:bg-gray-100"
                     [ngClass]="{'bg-white': i % 2 === 0, 'bg-gray-100': i % 2 !== 0 }">
                     <td>{{ i + 1 }}</td>

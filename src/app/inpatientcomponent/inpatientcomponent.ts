@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Subject, interval } from 'rxjs';
+import { debounceTime, takeUntil } from 'rxjs/operators';
 import { SocketServices } from '../shared/services/socket-services';
 import { Dashboard, SummaryDashboard } from '../shared/interfaces/dashboard';
 import { DashboarServices } from '../shared/services/dashboar-services';
@@ -30,12 +32,10 @@ import { LockerNotification } from '../shared/interfaces/lockernotidication';
   templateUrl: './inpatientcomponent.html',
   styleUrl: './inpatientcomponent.css',
 })
-export class Inpatientcomponent {
+export class Inpatientcomponent implements OnInit, OnDestroy {
 
   @ViewChild('detailModal') detailComp!: FromDetailComponent;
   @ViewChild('unitDoseModal') unitDoseModal!: FromDetailUnitDose;
-
-
 
   selectedWard: string = '000';
   selectedOrder!: Dashboard;
@@ -44,7 +44,7 @@ export class Inpatientcomponent {
   selectedDrug: Detail | null = null;
   dashboardList: Dashboard[] = [];
   wards: Ward[] = [];
-  user!: User | undefined
+  user!: User | undefined;
   selectedStateCard: number | null = null;
   showBadge: boolean = false;
 
@@ -69,83 +69,107 @@ export class Inpatientcomponent {
     state_5: 0
   };
 
-
   private router = inject(Router);
   private socket = inject(SocketServices);
   private dashboardSrv = inject(DashboarServices);
   private wardSrv = inject(WardServices);
   private swalSrv = inject(SwalServices);
-  private authSrv = inject(AuthServices)
+  private authSrv = inject(AuthServices);
+
+  // ---- ตัวช่วยจัดการ lifecycle / debounce ----
+  private destroy$ = new Subject<void>();
+  private filterChange$ = new Subject<void>();
 
   ngOnInit() {
 
-    this.user = this.authSrv.getUser()
+    this.user = this.authSrv.getUser();
 
     this.filters.ward = localStorage.getItem('selectedWard') || '000';
     this.filters.date = new Date().toISOString().substring(0, 10);
 
+    // ยิงครั้งแรกทันที
     this.search();
 
-    setInterval(() => {
-      this.search();
-    }, 2000);
+    // debounce การพิมพ์ filter (hn / an / name) ไม่ให้ยิง search ทุกตัวอักษร
+    this.filterChange$
+      .pipe(debounceTime(400), takeUntil(this.destroy$))
+      .subscribe(() => this.search());
+
+    // polling แบบ cleanup ได้ (แทน setInterval เดิม)
+    interval(2000)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.search());
 
     this.wardSrv.getWardList();
-    this.wardSrv.onWardList().subscribe((res: any) => {
-      this.wards = res.msg;
-      this.wardSrv.setWardLists(this.wards);
-    });
+    this.wardSrv.onWardList()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((res: any) => {
+        this.wards = res.msg;
+        this.wardSrv.setWardLists(this.wards);
+      });
 
-    this.socket.fromEvent<LockerNotification>('locker-new').subscribe((data) => {
-      console.log('Locker new event:', data);
+    this.socket.fromEvent<LockerNotification>('locker-new')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data) => {
+        console.log('Locker new event:', data);
 
-      //  แสดง badge เฉพาะ ward ที่ตรงกับ wardValue
-      if (data.wardcode === this.filters.ward) {
-        console.log('Selected ward:', this.filters.ward, 'Incoming ward:', data.wardcode);
-        this.showBadge = true;
-      }
+        if (data.wardcode === this.filters.ward) {
+          console.log('Selected ward:', this.filters.ward, 'Incoming ward:', data.wardcode);
+          this.showBadge = true;
+        }
 
-      // ตัวอย่างกรณี hello client
-      if (data?.msg?.toLowerCase() === 'hello client') {
-        console.log('Client connected message received', data);
-        // สามารถโชว์ Swal หรือ handle อื่นๆ ได้
-      }
-    });
+        if (data?.msg?.toLowerCase() === 'hello client') {
+          console.log('Client connected message received', data);
+        }
+      });
 
-    this.dashboardSrv.onDataOrderIPD().subscribe(res => {
-      // console.log("onDataOrderIPD", res);
-      if (res.status === 200) {
-        const currentPage = this.pages;
-        this.dashboardList = res.msg;
+    this.dashboardSrv.onDataOrderIPD()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(res => {
+        if (res.status === 200) {
+          const currentPage = this.pages;
+          this.dashboardList = res.msg;
 
-        const maxPage = Math.ceil(this.dashboardList.length / this.itemsPerPage);
-        this.pages = currentPage <= maxPage ? currentPage : 1;
-      } else {
-        this.dashboardList = [];
-        this.pages = 1;
-      }
-    });
+          const maxPage = Math.ceil(this.dashboardList.length / this.itemsPerPage);
+          this.pages = currentPage <= maxPage ? currentPage : 1;
+        } else {
+          this.dashboardList = [];
+          this.pages = 1;
+        }
+      });
 
-    this.dashboardSrv.onSummary().subscribe(res => {
-      if (res.status === 200 && res.msg) {
-        const raw = res.msg;
+    this.dashboardSrv.onSummary()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(res => {
+        if (res.status === 200 && res.msg) {
+          const raw = res.msg;
 
-        this.summary = {
-          state_0: Number(raw.state_0_count),
-          state_1: Number(raw.state_1_count),
-          state_2: Number(raw.state_2_count),
-          state_3: Number(raw.state_3_count),
-          state_4: Number(raw.state_4_count),
-          state_5: Number(raw.state_5_count),
-        };
+          this.summary = {
+            state_0: Number(raw.state_0_count),
+            state_1: Number(raw.state_1_count),
+            state_2: Number(raw.state_2_count),
+            state_3: Number(raw.state_3_count),
+            state_4: Number(raw.state_4_count),
+            state_5: Number(raw.state_5_count),
+          };
+        }
+      });
 
-        // console.log('summary (mapped)', this.summary);
-      }
-    });
+    // ---- ย้าย subscribe ของ detail มาไว้ที่เดียว ป้องกัน subscription ซ้อน ----
+    this.dashboardSrv.ondetail()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(res => {
+        if (res.status === 200) {
+          this.orderDetails = [...res.msg];
+          Swal.close();
+          this.detailComp.open();
+        }
+      });
+  }
 
-
-
-
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadDashboard() {
@@ -167,6 +191,10 @@ export class Inpatientcomponent {
     this.dashboardSrv.getSummary(this.filters);
   }
 
+  // เรียกจาก (input) ของ hn/an/name ใน template แทนการยิง search() ตรง ๆ ทุก keyup
+  onFilterInput() {
+    this.filterChange$.next();
+  }
 
   resetFilter() {
     this.filters = {
@@ -192,32 +220,20 @@ export class Inpatientcomponent {
   }
 
   waiting() {
-    return this.summary.state_0 + this.summary.state_1 + this.summary.state_2 + this.summary.state_4 + this.summary.state_5
+    return this.summary.state_0 + this.summary.state_1 + this.summary.state_2 + this.summary.state_4 + this.summary.state_5;
   }
 
   success() {
-    return this.summary.state_3
+    return this.summary.state_3;
   }
 
-  async openDetail(item: Dashboard) {
-
-    // console.log("openDetail item", item);
+  // เดิม subscribe ondetail() ซ้ำในนี้ -> ตัดออก เหลือแค่สั่ง emit เพราะ subscribe ทำครั้งเดียวใน ngOnInit แล้ว
+  openDetail(item: Dashboard) {
     this.selectedOrder = item;
     this.orderDetails = [];
 
     this.swalSrv.loadingAlert2();
     this.dashboardSrv.getdetail(item.hn, item.order_number);
-
-    this.dashboardSrv.ondetail().subscribe(res => {
-      // console.log("ondetail res", res);
-
-      if (res.status === 200) {
-        this.orderDetails = [...res.msg];
-        Swal.close();
-        this.detailComp.open();
-        // console.log('detailComp', this.detailComp);
-      }
-    });
   }
 
   async clicktologout() {
@@ -231,15 +247,14 @@ export class Inpatientcomponent {
 
     if (!result) return;
 
-    // ถ้า login ปกติ → logout
     if (this.authSrv.getUser()) {
       this.authSrv.logout();
     } else {
-      // ถ้าไม่ได้ login ปกติ → redirect กลับ login page
       this.router.navigate(['/login']);
     }
   }
 
+  // เดิม subscribe ondetail() ซ้ำในนี้ -> ตัดออกเช่นกัน เพราะ subscribe ทำครั้งเดียวใน ngOnInit แล้ว
   reloadDetail() {
     if (!this.selectedOrder) return;
 
@@ -247,12 +262,6 @@ export class Inpatientcomponent {
       this.selectedOrder.hn,
       this.selectedOrder.order_number
     );
-
-    this.dashboardSrv.ondetail().subscribe(res => {
-      if (res.status === 200) {
-        this.orderDetails = [...res.msg];
-      }
-    });
   }
 
   clearBadge() {
@@ -262,22 +271,19 @@ export class Inpatientcomponent {
   openUnitDoseModal() {
     if (!this.selectedOrder) return;
 
-    // ปิด modal หลัก
     this.detailComp.close();
-
-    // แสดง loading
     this.swalSrv.loadingAlert2();
 
     const hn = this.selectedOrder.hn;
     const order_number = this.selectedOrder.order_number;
 
+    // ใช้ take(1) แบบเดิม (ครั้งเดียวแล้ว unsubscribe เอง) แต่ผูกกับ destroy$ ด้วยเพื่อความปลอดภัย
     const sub = this.socket.fromEvent<any>('order_pack_unitdose')
+      .pipe(takeUntil(this.destroy$))
       .subscribe(res => {
-        Swal.close(); // ปิด loading
+        Swal.close();
 
         if (res.status === 200 && res.data?.length > 0) {
-
-          // ส่งข้อมูลทั้งหมดให้ modal
           this.unitDoseModal.packUnitDose = res.data.map((x: any) => ({
             pack_id: x.id,
             pack_number: x.pack_number,
@@ -286,8 +292,6 @@ export class Inpatientcomponent {
           }));
 
           this.unitDoseModal.selectedOrder = this.selectedOrder;
-
-          // เปิด modal
           this.unitDoseModal.open();
 
         } else {
@@ -304,20 +308,16 @@ export class Inpatientcomponent {
     const d = new Date(this.selectedOrder.order_date);
     const localDate = d.toLocaleDateString('en-CA'); // YYYY-MM-DD
 
-    // ส่ง request ไป server
     this.socket.emit('get_pack_unitdose', { hn, order_number, order_date: localDate });
     console.log("get_pack_unitdose", hn, order_number, localDate);
   }
 
-
   backToMain() {
-    this.unitDoseModal.close();   // ปิด unit dose
+    this.unitDoseModal.close();
     this.swalSrv.loadingAlert2();
-    this.detailComp.open();      // เปิด modal หลักกลับ
+    this.detailComp.open();
     Swal.close();
   }
-
-
 
   clicktohome() {
     this.swalSrv.loadingAlert({ title: 'Please wait', text: 'Searching for information' });
@@ -326,14 +326,10 @@ export class Inpatientcomponent {
     });
   }
 
-
-
   /////////////// PACK DRUG UNIT DOSE /////////////////////////
   handleSelectPack(event: { pack_number: number, hn: string }) {
     console.log('Selected pack:', event);
-
   }
-
 
   getOrderStateText(state: number): string {
     if (state < 3) {
@@ -363,11 +359,8 @@ export class Inpatientcomponent {
     return '-';
   }
 
-
-
-
-
-
-
-
+  // เพิ่ม trackBy สำหรับ *ngFor เพื่อไม่ให้ Angular render ตารางใหม่ทั้งหมดทุกครั้งที่ dashboardList อัปเดต
+  trackByOrder(index: number, item: Dashboard) {
+    return item.hn + '_' + item.order_number;
+  }
 }

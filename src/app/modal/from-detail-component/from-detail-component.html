@@ -16,9 +16,9 @@
       </div>
       <div class="border-b border-gray-400 mt-4"></div>
 
-      <div *ngIf="isLogin" class="flex justify-end gap-4 mt-4">
-        <span class="text-black text-lg">Check All</span>
-        <input type="checkbox" class="checkbox checkbox-xl checkbox-success" [(ngModel)]="checkAll"
+      <div *ngIf="showConfirmButton" class="flex justify-end gap-4 mt-4">
+        <span  class="text-black text-lg">Check All</span>
+        <input  type="checkbox" class="checkbox checkbox-xl checkbox-success" [(ngModel)]="checkAll"
           (change)="toggleCheckAll()" />
       </div>
 
@@ -45,7 +45,7 @@
         </div>
 
         <div class="flex flex-col mt-2 gap-2">
-          <button *ngIf="canConfirmReceive" class="btn btn-success mt-2" (click)="confirmReceive()">
+          <button *ngIf="showConfirmButton" class="btn btn-success mt-2" (click)="confirmReceive()" >
             {{ hasCheckedItems ? 'ยืนยันรับยาทั้งหมด' : 'ยืนยันรับยา' }}
           </button>
         </div>
@@ -90,7 +90,7 @@
                 <td class="text-center font-semibold"> {{ i + 1 }} </td>
                 <td class="text-red-600"> {{ data.genericname }} </td>
                 <td class="text-center">
-                  <input  *ngIf="isLogin" type="checkbox" checked="checked" class="checkbox checkbox-lg checkbox-success mt-2"
+                  <input  *ngIf="showConfirmButton" type="checkbox" checked="checked" class="checkbox checkbox-lg checkbox-success mt-2"
                   [(ngModel)]="data.checked" (change)="onCheckItem(data)" (click)="$event.stopPropagation()" />
                 </td>
               </tr>
@@ -121,11 +121,18 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let data of checkedData; let i = index" class="text-center text-black text-lg"
-                [ngClass]="{'bg-gray-100': i % 2 === 0, 'bg-white': i % 2 !== 0 }">
-                <td class="text-center font-semibold">{{ i + 1 }}</td>
-                <td class="text-[#359D73]">{{ data.genericname }}</td>
-              </tr>
+<tr
+  *ngFor="let data of checkedData; let i = index"
+  class="text-center text-black text-lg cursor-pointer"
+  (click)="selectDrug(data)"
+  [ngClass]="{
+    'bg-gray-100': i % 2 === 0,
+    'bg-white': i % 2 !== 0
+  }">
+
+  <td class="text-center font-semibold">{{ i + 1 }}</td>
+  <td class="text-[#359D73]">{{ data.genericname }}</td>
+</tr>
 
               <!-- ถ้าไม่มีข้อมูล -->
               <tr *ngIf="checkedData?.length === 0">

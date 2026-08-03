@@ -133,6 +133,8 @@ searchdrug() {
   }
 
   onCheckItem(item: Detail) {
+      console.log('check item', item.order_state_ot, typeof item.order_state_ot);
+
     if (item.checked) {
       this.selectedDrug = item;
     } else if (this.selectedDrug?.icode === item.icode) {
@@ -151,10 +153,17 @@ searchdrug() {
     return this.filteredOrderDetails.some(i => i.checked);
   }
 
-  get canConfirmReceive(): boolean {
-    if (this.hasCheckedItems) return true;
-    return this.canReceiveDrug(this.selectedDrug);
+get canConfirmReceive(): boolean {
+  if (!this.user) return false;
+
+  if (this.hasCheckedItems) {
+    return this.filteredOrderDetails
+      .filter(i => i.checked)
+      .every(i => Number(i.order_state) >= 6);
   }
+
+  return Number(this.selectedDrug?.order_state) > 6;
+}
 
   get isLogin(): boolean {
     return !!this.user;
@@ -434,8 +443,25 @@ get hasUnitDose(): boolean {
 }
 
 
+get showConfirmButton(): boolean {
+  if (!this.user) {
+    return false;
+  }
 
+  const items = this.hasCheckedItems
+    ? this.filteredOrderDetails.filter(i => i.checked)
+    : this.selectedDrug
+      ? [this.selectedDrug]
+      : [];
 
+  return (
+    items.length > 0 &&
+    items.every(i => {
+      const state = Number(i.order_state);
+      return state >= 6 && state !== 8;
+    })
+  );
+}
 
 
 
