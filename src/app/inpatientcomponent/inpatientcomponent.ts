@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime, take } from 'rxjs/operators';
 import { SocketServices } from '../shared/services/socket-services';
 import { Dashboard, SummaryDashboard } from '../shared/interfaces/dashboard';
 import { DashboarServices } from '../shared/services/dashboar-services';
@@ -30,12 +32,10 @@ import { LockerNotification } from '../shared/interfaces/lockernotidication';
   templateUrl: './inpatientcomponent.html',
   styleUrl: './inpatientcomponent.css',
 })
-export class Inpatientcomponent {
+export class Inpatientcomponent implements OnInit, OnDestroy {
 
   @ViewChild('detailModal') detailComp!: FromDetailComponent;
   @ViewChild('unitDoseModal') unitDoseModal!: FromDetailUnitDose;
-
-
 
   selectedWard: string = '000';
   selectedOrder!: Dashboard;
@@ -44,7 +44,7 @@ export class Inpatientcomponent {
   selectedDrug: Detail | null = null;
   dashboardList: Dashboard[] = [];
   wards: Ward[] = [];
-  user!: User | undefined
+  user!: User | undefined;
   selectedStateCard: number | null = null;
   showBadge: boolean = false;
   createTimeLocker: CreateTimeLocker | null = null;
@@ -55,7 +55,6 @@ export class Inpatientcomponent {
   itemsPerPage: number = 10;
 
   notifications: (LockerNotification & { id: string })[] = [];
-
   smartWardNotifications: (OrderSmartward & { id: string })[] = [];
 
   filters = {
@@ -77,96 +76,120 @@ export class Inpatientcomponent {
     state_5: 0
   };
 
-
   private router = inject(Router);
   private socket = inject(SocketServices);
   private dashboardSrv = inject(DashboarServices);
   private wardSrv = inject(WardServices);
   private swalSrv = inject(SwalServices);
-  private authSrv = inject(AuthServices)
+  private authSrv = inject(AuthServices);
+
+  // ---- FIX 2: debounce search instead of firing on every keystroke ----
+  private searchSubject = new Subject<void>();
+
+  // ---- Track all subscriptions / intervals so we can clean them up ----
+  private subs = new Subscription();
+  private pollIntervalId: any;
+  private smartWardIntervalId: any;
 
   ngOnInit() {
 
-    this.user = this.authSrv.getUser()
+    this.user = this.authSrv.getUser();
 
     this.filters.ward = localStorage.getItem('selectedWard') || '000';
     this.filters.date = new Date().toISOString().substring(0, 10);
 
-    this.search();
+    // debounced search trigger (fixes typing flicker)
+    this.subs.add(
+      this.searchSubject.pipe(debounceTime(400)).subscribe(() => {
+        this.doSearch();
+      })
+    );
 
-    setInterval(() => {
-      this.search();
+    this.doSearch();
+
+    // Poll dashboard every 2s. Kept, but now coexists safely with
+    // debounced manual search because both funnel through doSearch().
+    this.pollIntervalId = setInterval(() => {
+      this.doSearch();
     }, 2000);
 
     this.wardSrv.getWardList();
-    this.wardSrv.onWardList().subscribe((res: any) => {
-      this.wards = res.msg;
-      this.wardSrv.setWardLists(this.wards);
-    });
+    this.subs.add(
+      this.wardSrv.onWardList().subscribe((res: any) => {
+        this.wards = res.msg;
+        this.wardSrv.setWardLists(this.wards);
+      })
+    );
 
     this.reqsmartward();
 
-
-    this.socket.fromEvent<LockerNotification>('locker-new').subscribe((data) => {
-
-      if (data.wardcode === this.filters.ward) {
-        const exists = this.notifications.some(
-          x => JSON.stringify(x.order_number) === JSON.stringify(data.order_number)
-        );
-        if (!exists) {
-          this.notifications.unshift({
-            ...data,
-            id: Date.now().toString()
-          });
+    this.subs.add(
+      this.socket.fromEvent<LockerNotification>('locker-new').subscribe((data) => {
+        if (data.wardcode === this.filters.ward) {
+          const exists = this.notifications.some(
+            x => JSON.stringify(x.order_number) === JSON.stringify(data.order_number)
+          );
+          if (!exists) {
+            this.notifications.unshift({
+              ...data,
+              id: Date.now().toString()
+            });
+          }
         }
-      }
+      })
+    );
 
-    });
+    this.subs.add(
+      this.dashboardSrv.onDataOrderIPD().subscribe(res => {
+        if (res.status === 200) {
+          const currentPage = this.pages;
+          this.dashboardList = res.msg;
 
-    this.dashboardSrv.onDataOrderIPD().subscribe(res => {
-      // console.log("onDataOrderIPD", res);
-      if (res.status === 200) {
-        const currentPage = this.pages;
-        this.dashboardList = res.msg;
+          const maxPage = Math.ceil(this.dashboardList.length / this.itemsPerPage);
+          this.pages = currentPage <= maxPage ? currentPage : 1;
+        } else {
+          this.dashboardList = [];
+          this.pages = 1;
+        }
+      })
+    );
 
-        const maxPage = Math.ceil(this.dashboardList.length / this.itemsPerPage);
-        this.pages = currentPage <= maxPage ? currentPage : 1;
-      } else {
-        this.dashboardList = [];
-        this.pages = 1;
-      }
-    });
+    this.subs.add(
+      this.dashboardSrv.onSummary().subscribe(res => {
+        if (res.status === 200 && res.msg) {
+          const raw = res.msg;
 
-    this.dashboardSrv.onSummary().subscribe(res => {
-      if (res.status === 200 && res.msg) {
-        const raw = res.msg;
+          this.summary = {
+            state_0: Number(raw.state_0_count),
+            state_1: Number(raw.state_1_count),
+            state_2: Number(raw.state_2_count),
+            state_3: Number(raw.state_3_count),
+            state_4: Number(raw.state_4_count),
+            state_5: Number(raw.state_5_count),
+          };
+        }
+      })
+    );
 
-        this.summary = {
-          state_0: Number(raw.state_0_count),
-          state_1: Number(raw.state_1_count),
-          state_2: Number(raw.state_2_count),
-          state_3: Number(raw.state_3_count),
-          state_4: Number(raw.state_4_count),
-          state_5: Number(raw.state_5_count),
-        };
+    this.subs.add(
+      this.dashboardSrv.oncreateatlocker().subscribe(res => {
+        if (res.status === 200 && res.data?.length) {
+          const inLocker = res.data.find((x: any) => x.lock_state === 1);
+          const outLocker = res.data.find((x: any) => x.lock_state === 2 || x.lock_state === 3);
 
-        // console.log('summary (mapped)', this.summary);
-      }
-    });
-
-    this.dashboardSrv.oncreateatlocker().subscribe(res => {
-      if (res.status === 200 && res.data?.length) {
-        const inLocker = res.data.find((x: any) => x.lock_state === 1);
-        const outLocker = res.data.find((x: any) => x.lock_state === 2 || x.lock_state === 3);
-
-        this.inLockerTime = inLocker?.create_at ?? null;
-        this.outLockerTime = outLocker?.create_at ?? null;
-      }
-    });
+          this.inLockerTime = inLocker?.create_at ?? null;
+          this.outLockerTime = outLocker?.create_at ?? null;
+        }
+      })
+    );
   }
 
-
-
+  ngOnDestroy() {
+    // ---- FIX: clean up everything so nothing keeps firing / leaking ----
+    if (this.pollIntervalId) clearInterval(this.pollIntervalId);
+    if (this.smartWardIntervalId) clearInterval(this.smartWardIntervalId);
+    this.subs.unsubscribe();
+  }
 
   loadDashboard() {
     this.socket.emit('get_dataorder_ipd', {
@@ -174,7 +197,12 @@ export class Inpatientcomponent {
     });
   }
 
-  search() {
+  /**
+   * Internal search that actually emits to the socket.
+   * Called by both the 2s poll and the debounced user-triggered search,
+   * so there is only ever one code path doing the emit.
+   */
+  private doSearch() {
     this.socket.emit('get_dataorder_ipd', {
       ward: this.filters.ward,
       hn: this.filters.hn,
@@ -188,6 +216,22 @@ export class Inpatientcomponent {
     this.dashboardSrv.getSummary(this.filters);
   }
 
+  /**
+   * Public "search" kept for compatibility with (change) handlers
+   * that should fire immediately (dropdowns, date picker, reset).
+   */
+  search() {
+    this.doSearch();
+  }
+
+  /**
+   * Use this from (keyup) on text inputs (HN, AN, ชื่อ-สกุล) instead of
+   * search() directly — it debounces so typing doesn't spam the socket
+   * and doesn't race the interval poll.
+   */
+  triggerSearch() {
+    this.searchSubject.next();
+  }
 
   resetFilter() {
     this.filters = {
@@ -214,16 +258,16 @@ export class Inpatientcomponent {
   }
 
   waiting() {
-    return this.summary.state_0 + this.summary.state_1 + this.summary.state_2 + this.summary.state_4 + this.summary.state_5
+    return this.summary.state_0 + this.summary.state_1 + this.summary.state_2 + this.summary.state_4 + this.summary.state_5;
   }
 
   success() {
-    return this.summary.state_3
+    return this.summary.state_3;
   }
 
+  // ---- FIX 3: use take(1) so we don't stack up subscriptions every click ----
   async openDetail(item: Dashboard) {
 
-    // console.log("openDetail item", item);
     this.selectedOrder = item;
     this.orderDetails = [];
 
@@ -231,15 +275,11 @@ export class Inpatientcomponent {
     this.dashboardSrv.getdetail(item.hn, item.order_number);
     this.dashboardSrv.getcreateatlocker(item.order_number);
 
-
-    this.dashboardSrv.ondetail().subscribe(res => {
-      // console.log("ondetail res", res);
-
+    this.dashboardSrv.ondetail().pipe(take(1)).subscribe(res => {
       if (res.status === 200) {
         this.orderDetails = [...res.msg];
         Swal.close();
         this.detailComp.open();
-        // console.log('detailComp', this.detailComp);
       }
     });
   }
@@ -255,11 +295,9 @@ export class Inpatientcomponent {
 
     if (!result) return;
 
-    // ถ้า login ปกติ → logout
     if (this.authSrv.getUser()) {
       this.authSrv.logout();
     } else {
-      // ถ้าไม่ได้ login ปกติ → redirect กลับ login page
       this.router.navigate(['/login']);
     }
   }
@@ -272,7 +310,7 @@ export class Inpatientcomponent {
       this.selectedOrder.order_number
     );
 
-    this.dashboardSrv.ondetail().subscribe(res => {
+    this.dashboardSrv.ondetail().pipe(take(1)).subscribe(res => {
       if (res.status === 200) {
         this.orderDetails = [...res.msg];
       }
@@ -286,22 +324,19 @@ export class Inpatientcomponent {
   openUnitDoseModal() {
     if (!this.selectedOrder) return;
 
-    // ปิด modal หลัก
     this.detailComp.close();
-
-    // แสดง loading
     this.swalSrv.loadingAlert2();
 
     const hn = this.selectedOrder.hn;
     const order_number = this.selectedOrder.order_number;
 
     const sub = this.socket.fromEvent<any>('order_pack_unitdose')
+      .pipe(take(1))
       .subscribe(res => {
-        Swal.close(); // ปิด loading
+        Swal.close();
 
         if (res.status === 200 && res.data?.length > 0) {
 
-          // ส่งข้อมูลทั้งหมดให้ modal
           this.unitDoseModal.packUnitDose = res.data.map((x: any) => ({
             pack_id: x.id,
             pack_number: x.pack_number,
@@ -310,8 +345,6 @@ export class Inpatientcomponent {
           }));
 
           this.unitDoseModal.selectedOrder = this.selectedOrder;
-
-          // เปิด modal
           this.unitDoseModal.open();
 
         } else {
@@ -321,27 +354,23 @@ export class Inpatientcomponent {
             text: 'รายการนี้ไม่มีข้อมูล UNIT DOSE'
           });
         }
-
-        sub.unsubscribe();
       });
+
+    // take(1) auto-unsubscribes after first emission, no manual unsubscribe needed
+    void sub;
 
     const d = new Date(this.selectedOrder.order_date);
     const localDate = d.toLocaleDateString('en-CA'); // YYYY-MM-DD
 
-    // ส่ง request ไป server
     this.socket.emit('get_pack_unitdose', { hn, order_number, order_date: localDate });
-    console.log("get_pack_unitdose", hn, order_number, localDate);
   }
-
 
   backToMain() {
-    this.unitDoseModal.close();   // ปิด unit dose
+    this.unitDoseModal.close();
     this.swalSrv.loadingAlert2();
-    this.detailComp.open();      // เปิด modal หลักกลับ
+    this.detailComp.open();
     Swal.close();
   }
-
-
 
   clicktohome() {
     this.swalSrv.loadingAlert({ title: 'Please wait', text: 'Searching for information' });
@@ -350,141 +379,88 @@ export class Inpatientcomponent {
     });
   }
 
-
-
-  /////////////// PACK DRUG UNIT DOSE /////////////////////////
   handleSelectPack(event: { pack_number: number, hn: string }) {
     console.log('Selected pack:', event);
-
   }
 
-async removeSmartWardNotification( id: string, order_number: number) {
-
-  try {
-    const res =
-      await this.dashboardSrv.updateOrderSmartWard( order_number );
-      console.log(res)
-    if (res.status === 200) {
-      this.smartWardNotifications =
-        this.smartWardNotifications.filter(
-          x => x.id !== id
-        );
+  async removeSmartWardNotification(id: string, order_number: number) {
+    try {
+      const res = await this.dashboardSrv.updateOrderSmartWard(order_number);
+      if (res.status === 200) {
+        this.smartWardNotifications =
+          this.smartWardNotifications.filter(x => x.id !== id);
+      }
+    } catch (error) {
+      console.error(error);
     }
-  } catch (error) {
-    console.error(error);
   }
 
-}
-
-async removeNotification(id: string, order_number: number[]) {
-  try {
-
-    const res =await this.dashboardSrv.updateOrderSmartLocker(order_number);
-
-    if (res.status === 200) {
-      this.notifications =
-        this.notifications.filter(x => x.id !== id);
+  async removeNotification(id: string, order_number: number[]) {
+    try {
+      const res = await this.dashboardSrv.updateOrderSmartLocker(order_number);
+      if (res.status === 200) {
+        this.notifications = this.notifications.filter(x => x.id !== id);
+      }
+    } catch (error) {
+      console.error(error);
     }
-
-  } catch (error) {
-    console.error(error);
   }
-}
 
-  // loadSmartWardNotification() {
-  //   const res = this.socket.emit('get_order_smart_ward');
-  //   console.log('loadSmartWardNotification',res)
-  // }
+  reqsmartward() {
 
-
-reqsmartward() {
-
-  // console.log('Current ward:', this.filters.ward);
-
-  this.dashboardSrv.orderSmartward()
-    .subscribe({
-      next: (res) => {
-
-        // console.log('SMARTWARD RESPONSE', res);
-
-        if (res.status !== 200) {
-          console.log('Status not 200');
-          return;
-        }
-
-        // console.log('msg length:', res.msg?.length);
-
-        res.msg.forEach((item: any) => {
-
-          // console.log('ITEM:', item);
-
-          const wardMatch =
-            String(item.wardcode).trim() ===
-            String(this.filters.ward).trim();
-
-          // console.log(
-          //   'COMPARE =>',
-          //   item.wardcode,
-          //   this.filters.ward,
-          //   wardMatch
-          // );
-
-          if (!wardMatch) {
+    this.subs.add(
+      this.dashboardSrv.orderSmartward().subscribe({
+        next: (res) => {
+          if (res.status !== 200) {
             return;
           }
 
-          const exists = this.smartWardNotifications.some(
-            x => String(x.order_number) === String(item.order_number)
-          );
+          res.msg.forEach((item: any) => {
+            const wardMatch =
+              String(item.wardcode).trim() === String(this.filters.ward).trim();
 
-          // console.log(
-          //   'EXISTS:',
-          //   item.order_number,
-          //   exists
-          // );
+            if (!wardMatch) {
+              return;
+            }
 
-          if (!exists) {
+            const exists = this.smartWardNotifications.some(
+              x => String(x.order_number) === String(item.order_number)
+            );
 
-            const newItem = {
-              ...item,
-              id: Date.now().toString()
-            };
+            if (!exists) {
+              const newItem = {
+                ...item,
+                id: Date.now().toString()
+              };
 
-            // console.log('ADD ITEM:', newItem);
+              this.smartWardNotifications = [
+                newItem,
+                ...this.smartWardNotifications
+              ];
+            }
+          });
+        },
+        error: (err) => {
+          console.error('SMARTWARD ERROR', err);
+        }
+      })
+    );
 
-            this.smartWardNotifications = [
-              newItem,
-              ...this.smartWardNotifications
-            ];
-
-            // console.log(
-            //   'AFTER ADD:',
-            //   this.smartWardNotifications
-            // );
-          }
-        });
-
-      },
-      error: (err) => {
-        console.error('SMARTWARD ERROR', err);
-      }
-    });
-
-  // console.log('EMIT get_order_smart_ward');
-
-  this.socket.emit('get_order_smart_ward');
-
-  setInterval(() => {
-    // console.log('EMIT get_order_smart_ward (interval)');
     this.socket.emit('get_order_smart_ward');
-  }, 5000);
-}
 
+    this.smartWardIntervalId = setInterval(() => {
+      this.socket.emit('get_order_smart_ward');
+    }, 5000);
+  }
 
+  // ---- FIX 1: trackBy for the dashboard table so Angular doesn't ----
+  // ---- tear down and rebuild every row on each poll/search refresh ----
+  trackByOrder(index: number, item: Dashboard): any {
+    return item.order_number ?? index;
+  }
 
-
-
-
-
-
+  // trackBy helpers for the two notification lists too
+  trackByNotiId(index: number, item: { id: string }): string {
+    return item.id;
+  }
 }

@@ -6,16 +6,11 @@
     (selectPack)="handleSelectPack($event)">
 </app-from-detail-unit-dose>
 
-<!-- <div style="position:fixed;top:0;left:0;background:red;color:white;z-index:99999">
-  Ward={{filters.ward}}
-  Count={{smartWardNotifications.length}}
-</div> -->
-
 <div class="toast toast-top toast-end z-50">
 
   <!-- Locker -->
   <div
-    *ngFor="let noti of notifications"
+    *ngFor="let noti of notifications; trackBy: trackByNotiId"
     class="alert alert-info shadow-lg flex items-center gap-4 mb-2">
 
     <span>
@@ -33,7 +28,7 @@
 
   <!-- Smart Ward -->
 <div
-  *ngFor="let noti of smartWardNotifications"
+  *ngFor="let noti of smartWardNotifications; trackBy: trackByNotiId"
   class="alert alert-warning shadow-lg flex justify-between items-center mb-2">
 
   <div class="flex items-center gap-4">
@@ -155,7 +150,6 @@
             (click)="filterByState(1)">
             <div class="flex flex-row">
                 <i class="fa-solid fa-capsules text-3xl md:text-4xl ml-2 mt-2"></i>
-                <!-- <span class="text-xl md:text-2xl ml-2 mt-2">{{ getStateDescriptionsByIds('4') }}</span> -->
                 <span class="text-xl md:text-2xl ml-2 mt-2">จัดยาเสร็จสิ้น</span>
             </div>
             <div class="flex items-center justify-center">
@@ -170,7 +164,6 @@
             (click)="filterByState(2)">
             <div class="flex flex-row">
                 <i class="fa-solid fa-share-from-square text-3xl md:text-4xl ml-2 mt-2"></i>
-                <!-- <span class="text-xl md:text-2xl ml-2 mt-2 ">{{ getStateDescriptionsByIds('6') }}</span> -->
                 <span class="text-xl md:text-2xl ml-2 mt-2 ">ตรวจสอบยาเสร็จสิ้น</span>
             </div>
             <div class="flex items-center justify-center">
@@ -184,16 +177,6 @@
             hover:-translate-y-2 hover:bg-white hover:text-[#154D71] hover:border-[#154D71] cursor-pointer"
             (click)="filterByState(4); clearBadge()">
 
-            <!-- Badge Notification -->
-            <!-- <div class="indicator absolute top-2 right-2" *ngIf="showBadge">
-                <span class="indicator-item badge badge-primary 
-               badge-lg font-bold text-white 
-               shadow-lg animate-pulse">
-                    New
-                </span>
-            </div> -->
-
-
             <div class="flex flex-row">
                 <i class="fa-solid fa-building-lock text-3xl md:text-4xl ml-2 mt-2"></i>
                 <span class="text-xl md:text-2xl ml-2 mt-2">อยู่ในล็อกเกอร์</span>
@@ -203,20 +186,6 @@
                 <span class="text-6xl md:text-8xl mt-4 mb-4 text-shadow-lg/30">{{ summary.state_4 }}</span>
             </div>
         </div>
-
-        <!-- Card 5 -->
-        <!-- <div class="bg-[#001A6E] text-white shadow-xl rounded-lg border-2 border-transparent 
-                transition-all duration-300 ease-in-out 
-                 hover:-translate-y-2 hover:bg-white hover:text-[#001A6E] hover:border-[#001A6E] cursor-pointer"
-            (click)="filterByState(5)">
-            <div class="flex flex-row items-center ">
-                <i class="fa-solid fa-person-running text-3xl md:text-4xl mt-2"></i>
-                <span class="text-xl md:text-2xl ml-2 mt-2">กำลังนำส่ง</span>
-            </div>
-            <div class="flex items-center justify-center px-4 pb-6">
-                <span class="text-6xl md:text-8xl mt-4 mb-2 text-shadow-lg/30 ">{{ summary.state_5 }}</span>
-            </div>
-        </div> -->
 
         <!-- Card 6 -->
         <div class="bg-[#064635] text-white shadow-xl rounded-lg border-2 border-transparent 
@@ -251,11 +220,12 @@
             </label>
         </div>
 
+        <!-- NOTE: keyup now calls triggerSearch() (debounced) instead of search() -->
         <div class="col-span-1 flex items-center gap-2 p-2 ">
             <label class="input w-full bg-white border-2 border-[#1581BF] ">
                 <span class="label text-black">HN</span>
                 <input type="text" placeholder="ค้นหาด้วย HN" class="text-black" [(ngModel)]="filters.hn"
-                    (keyup)="search()" />
+                    (keyup)="triggerSearch()" />
             </label>
         </div>
 
@@ -263,7 +233,7 @@
             <label class="input w-full bg-white border-2 border-[#1581BF] ">
                 <span class="label text-black">AN</span>
                 <input type="text" placeholder="ค้นหาด้วย AN" class="text-black" [(ngModel)]="filters.an"
-                    (keyup)="search()" />
+                    (keyup)="triggerSearch()" />
             </label>
         </div>
 
@@ -277,6 +247,7 @@
                     <option value="E">STAT</option>
                     <option value="N">NEW</option>
                     <option value="C">CON</option>
+                    <option value="W">SmartWard</option>
                 </select>
 
             </label>
@@ -286,7 +257,7 @@
             <label class="input w-full bg-white border-2 border-[#1581BF]">
                 <span class="label text-black">ชื่อ - สกุล</span>
                 <input type="text" name="name" placeholder="ค้นหาด้วย ชื่อ หรือ นามสกุล" class="text-black"
-                    [(ngModel)]="filters.name" (keyup)="search()" />
+                    [(ngModel)]="filters.name" (keyup)="triggerSearch()" />
             </label>
         </div>
 
@@ -313,7 +284,6 @@
             <thead class="bg-[#1581BF] border-b border-[#1581BF] text-white">
                 <tr class="text-center text-lg">
                     <th>#</th>
-                    <!-- <th>วันที่เช็คอิน</th> -->
                     <th>เวลาเช็คอิน</th>
                     <th>HN</th>
                     <th>AN</th>
@@ -322,17 +292,17 @@
                     <th>หอผู้ป่วย</th>
                     <th>ประเภท</th>
                     <th>จำนวนรายการยา</th>
-                    <!-- <th>เวลานำออก</th> -->
                     <th>สถานะ</th>
                     <th>ข้อมูล</th>
                 </tr>
             </thead>
+            <!-- NOTE: trackBy added here so Angular reuses existing rows -->
+            <!-- instead of destroying/rebuilding the whole table every poll -->
             <tbody *ngIf="dashboardList.length > 0; else noData">
-                <tr *ngFor="let item of dashboardList | paginate: { itemsPerPage: itemsPerPage, currentPage: pages };let i = index"
+                <tr *ngFor="let item of dashboardList | paginate: { itemsPerPage: itemsPerPage, currentPage: pages }; trackBy: trackByOrder; let i = index"
                     class="text-center text-xl bg-white text-black hover:bg-gray-100"
                     [ngClass]="{'bg-white': i % 2 === 0, 'bg-gray-100': i % 2 !== 0 }">
                     <td>{{ i + 1 }}</td>
-                    <!-- <td>{{ item.order_date | date: 'dd/MM/yyyy' }}</td> -->
                     <td>{{ item.order_time.substring(0, 8) || '-'}} </td>
                     <td>{{ item.hn || '-' }}</td>
                     <td>{{ item.an || '-'}}</td>
@@ -353,11 +323,12 @@
                             *ngIf="item.order_type?.trim() === 'E'">
                             STAT
                         </span>
+                        <span class="badge bg-[#525EA7] border-[#525EA7] badge-xl text-white"
+                            *ngIf="item.order_type?.trim() === 'W'">
+                            SmartWard
+                        </span>                        
                     </td>
                     <td>{{ item.order_count }}</td>
-
-                    <!-- <td>{{ item.lock_state === 1 ? (item.create_at | date:'HH:mm') + ' น.' : '-' }}</td>
-                    <td>{{ item.lock_state == 2 || item.lock_state == 3 ? (item.create_at | date:'HH:mm') + ' น.' : '-' }}</td> -->
 
                     <td>
                         <span class="badge badge-xl text-white" [ngClass]="{
@@ -397,10 +368,5 @@
         <pagination-controls (pageChange)="pages = $event" previousLabel="ก่อนหน้า" nextLabel="ถัดไป">
         </pagination-controls>
     </div>
-
-
-
-
-
 
 </div>
