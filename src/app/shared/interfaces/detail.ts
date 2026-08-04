@@ -81,6 +81,8 @@ export interface CreateTimeLocker {
 export interface OrderSmartward{
   order_number: number 
   wardcode: string
+  patient_name: string
+  hn: string
 }
 
 

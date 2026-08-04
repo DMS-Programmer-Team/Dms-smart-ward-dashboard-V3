@@ -32,22 +32,43 @@
   </div>
 
   <!-- Smart Ward -->
-  <div
-    *ngFor="let noti of smartWardNotifications"
-    class="alert alert-warning shadow-lg flex items-center gap-4 mb-2">
+<div
+  *ngFor="let noti of smartWardNotifications"
+  class="alert alert-warning shadow-lg flex justify-between items-center mb-2">
 
-    <span>
-      <i class="fa-solid fa-triangle-exclamation"></i>
-      มีรายการยาเข้าตู้ Smart Ward ใหม่
-    </span>
+  <div class="flex items-center gap-4">
 
-    <button
-      class="btn btn-xs btn-circle btn-ghost"
-      (click)="removeSmartWardNotification(noti.id, noti.order_number)">
-      ✕
-    </button>
+    <div class="avatar placeholder">
+      <div class="bg-warning text-warning-content rounded-full w-10">
+        <!-- <i class="fa-solid fa-pills"></i> -->
+      </div>
+    </div>
+
+    <div>
+      <div class="font-bold">
+        มียาเข้าตู้ Smart Ward
+      </div>
+
+      <div class="flex flex-wrap gap-2 mt-1 text-sm">
+        <div class="badge badge-neutral">
+          HN: {{ noti.hn }}
+        </div>
+
+        <div class="badge badge-info">
+          {{ noti.patient_name }}
+        </div>
+      </div>
+    </div>
 
   </div>
+
+  <button
+    class="btn btn-circle btn-xs btn-ghost"
+    (click)="removeSmartWardNotification(noti.id, noti.order_number)">
+    <i class="fa-solid fa-xmark"></i>
+  </button>
+
+</div>
 
 </div>
 
