@@ -50,6 +50,10 @@ export class Inpatientcomponent implements OnInit, OnDestroy {
   createTimeLocker: CreateTimeLocker | null = null;
   inLockerTime: Date | null = null;
   outLockerTime: Date | null = null;
+  inLockerFname: string = '';
+  inLockerLname: string = '';
+  outLockerFname: string = '';
+  outLockerLname: string = '';
 
   pages: number = 1;
   itemsPerPage: number = 10;
@@ -173,12 +177,20 @@ export class Inpatientcomponent implements OnInit, OnDestroy {
 
     this.subs.add(
       this.dashboardSrv.oncreateatlocker().subscribe(res => {
+        console.log('oncreateatlocker', res);
         if (res.status === 200 && res.data?.length) {
           const inLocker = res.data.find((x: any) => x.lock_state === 1);
           const outLocker = res.data.find((x: any) => x.lock_state === 2 || x.lock_state === 3);
 
-          this.inLockerTime = inLocker?.create_at ?? null;
-          this.outLockerTime = outLocker?.create_at ?? null;
+      // นำเข้า
+      this.inLockerTime = inLocker?.create_at ?? null;
+      this.inLockerFname = inLocker?.fname ?? '';
+      this.inLockerLname = inLocker?.lname ?? '';
+
+      // นำออก
+      this.outLockerTime = outLocker?.create_at ?? null;
+      this.outLockerFname = outLocker?.fname ?? '';
+      this.outLockerLname = outLocker?.lname ?? '';
         }
       })
     );

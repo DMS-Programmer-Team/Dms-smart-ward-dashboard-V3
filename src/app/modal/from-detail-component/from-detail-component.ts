@@ -30,6 +30,11 @@ export class FromDetailComponent {
   @Input() selectedOrder!: Dashboard;
   @Input() inLockerTime: Date | null = null;
   @Input() outLockerTime: Date | null = null;
+    @Input() inLockerFname: string = '';
+    @Input() inLockerLname: string = '';
+    @Input() outLockerFname: string = '';
+    @Input() outLockerLname: string = '';
+
   @Output() received = new EventEmitter<void>();
   @Output() goUnitDose = new EventEmitter<void>();
 

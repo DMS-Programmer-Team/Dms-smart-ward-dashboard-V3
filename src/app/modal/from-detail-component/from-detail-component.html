@@ -19,12 +19,12 @@
       <div class="flex flex-row gap-10 mt-4">
         <span class="text-black">
           เวลานำเข้า Locker :
-          {{ inLockerTime ? (inLockerTime | date: 'HH:mm') + ' น.' : '-' }}
+          {{ inLockerTime ? (inLockerTime | date: 'HH:mm') + ' น.' : '-' }} ({{ inLockerFname }}) 
         </span>
 
         <span class="text-black">
           เวลานำออก Locker :
-          {{ outLockerTime ? (outLockerTime | date: 'HH:mm') + ' น.' : '-' }}
+          {{ outLockerTime ? (outLockerTime | date: 'HH:mm') + ' น.' : '-' }} ({{ outLockerFname }})
         </span>
       </div>
 
@@ -113,6 +113,7 @@
               <tr class="text-center">
                 <th class="text-center w-12">#</th>
                 <th>ชื่อยา</th>
+                <th>จำนวน</th>
                 <!-- <th class="text-center w-12"></th> -->
               </tr>
             </thead>
@@ -124,7 +125,8 @@
                 [ngClass]="{ 'bg-gray-100': i % 2 === 0, 'bg-white': i % 2 !== 0 }"
               >
                 <td class="text-center font-semibold">{{ i + 1 }}</td>
-                <td class="text-[#359D73]">{{ data.genericname }}</td>
+                <td class="text-[#359D73] whitespace-nowrap">{{ data.genericname }} </td>
+                <td class="text-[#359D73] whitespace-nowrap">{{ data.qty}} {{ data.units }}</td>
                 <!-- <td class="text-center">
                   <input
                     *ngIf="isLogin && canOperateThisOrder"

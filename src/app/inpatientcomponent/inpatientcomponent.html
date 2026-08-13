@@ -1,5 +1,7 @@
 <app-from-detail-component #detailModal [selectedOrder]="selectedOrder" [orderDetails]="orderDetails"
-    [inLockerTime]="inLockerTime" [outLockerTime]="outLockerTime" (goUnitDose)="openUnitDoseModal()">
+    [inLockerTime]="inLockerTime" [outLockerTime]="outLockerTime" [outLockerFname]="outLockerFname" [outLockerLname]="outLockerLname" 
+    [inLockerFname]="inLockerFname" [inLockerLname]="inLockerLname"
+    (goUnitDose)="openUnitDoseModal()">
     ></app-from-detail-component>
 
 <app-from-detail-unit-dose #unitDoseModal [selectedOrder]="selectedOrder" [orderDetails]="[]" (back)="backToMain()"
@@ -41,7 +43,7 @@
 
     <div>
       <div class="font-bold">
-        มียาเข้าตู้ Smart Ward
+        มียาเข้าตู้ Smart Ward {{ noti.order_date | date: 'dd/MM/yyyy' }} {{ noti.order_time | date: 'HH:mm' }}
       </div>
 
       <div class="flex flex-wrap gap-2 mt-1 text-sm">
@@ -52,6 +54,7 @@
         <div class="badge badge-info">
           {{ noti.patient_name }}
         </div>
+
       </div>
     </div>
 

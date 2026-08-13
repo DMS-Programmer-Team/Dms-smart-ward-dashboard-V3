@@ -76,6 +76,8 @@ export interface DrugUnitDose {
 export interface CreateTimeLocker {
   create_at: any
   lock_state: any
+  fname: string
+  lname: string
 }
 
 export interface OrderSmartward{
@@ -83,6 +85,9 @@ export interface OrderSmartward{
   wardcode: string
   patient_name: string
   hn: string
+  order_date: any
+  order_time: any
+  
 }
 
 
