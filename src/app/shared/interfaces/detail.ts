@@ -91,5 +91,13 @@ export interface OrderSmartward{
 }
 
 
+export interface ApproveSmartWard {
+  approve_staff:string
+  order_approve_time:any
+  flgn_order:string
+  approve_time:any
+}
+
+
 
 

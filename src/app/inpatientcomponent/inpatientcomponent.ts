@@ -10,7 +10,7 @@ import { DashboarServices } from '../shared/services/dashboar-services';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { Ward } from '../shared/interfaces/ward';
 import { WardServices } from '../shared/services/ward-services';
-import { CreateTimeLocker, Detail, OrderSmartward, PackUnitDose } from '../shared/interfaces/detail';
+import { ApproveSmartWard, CreateTimeLocker, Detail, OrderSmartward, PackUnitDose } from '../shared/interfaces/detail';
 import { FromDetailComponent } from '../modal/from-detail-component/from-detail-component';
 import { SwalServices } from '../shared/services/swal-services';
 import Swal from 'sweetalert2';
@@ -54,6 +54,7 @@ export class Inpatientcomponent implements OnInit, OnDestroy {
   inLockerLname: string = '';
   outLockerFname: string = '';
   outLockerLname: string = '';
+  approveSmartWard: ApproveSmartWard | null = null
 
   pages: number = 1;
   itemsPerPage: number = 10;
@@ -194,6 +195,20 @@ export class Inpatientcomponent implements OnInit, OnDestroy {
         }
       })
     );
+
+this.subs.add(
+  this.dashboardSrv.onapprovesmartward().subscribe(res => {
+    // console.log('approvesmartward', res);
+
+    if (res?.status === 200 && res.data?.length) {
+      // console.log('Approve Smart Ward สำเร็จ');
+
+      this.approveSmartWard = res.data[0];
+
+      // console.log('approveSmartWard:', this.approveSmartWard);
+    }
+  })
+);
   }
 
   ngOnDestroy() {
@@ -286,6 +301,7 @@ export class Inpatientcomponent implements OnInit, OnDestroy {
     this.swalSrv.loadingAlert2();
     this.dashboardSrv.getdetail(item.hn, item.order_number);
     this.dashboardSrv.getcreateatlocker(item.order_number);
+    this.dashboardSrv.getapprovesmartward(item.order_number);
 
     this.dashboardSrv.ondetail().pipe(take(1)).subscribe(res => {
       if (res.status === 200) {

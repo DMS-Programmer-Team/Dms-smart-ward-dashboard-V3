@@ -34,6 +34,7 @@ export class FromDetailComponent {
     @Input() inLockerLname: string = '';
     @Input() outLockerFname: string = '';
     @Input() outLockerLname: string = '';
+    @Input() approveSmartWard: any
 
   @Output() received = new EventEmitter<void>();
   @Output() goUnitDose = new EventEmitter<void>();

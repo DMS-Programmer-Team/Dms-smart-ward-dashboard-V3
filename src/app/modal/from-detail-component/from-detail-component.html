@@ -16,17 +16,49 @@
         <span class="text-black">วอร์ด : {{ order.wardname }}</span>
       </div>
 
-      <div class="flex flex-row gap-10 mt-4">
-        <span class="text-black">
-          เวลานำเข้า Locker :
-          {{ inLockerTime ? (inLockerTime | date: 'HH:mm') + ' น.' : '-' }} ({{ inLockerFname }}) 
-        </span>
+<!-- order_type = W ใช้ข้อมูล Approve Smart Ward -->
+<div
+  *ngIf="selectedOrder.order_type === 'W '"
+  class="flex flex-row gap-10 mt-4"
+>
+  <span class="text-black">
+    เวลาอนุมัติ :
+    {{
+      approveSmartWard?.order_approve_time
+        ? approveSmartWard.order_approve_time.substring(0, 5) + ' น.'
+        : '-'
+    }}
+    ({{ approveSmartWard?.approve_staff || '' }})
+  </span>
 
-        <span class="text-black">
-          เวลานำออก Locker :
-          {{ outLockerTime ? (outLockerTime | date: 'HH:mm') + ' น.' : '-' }} ({{ outLockerFname }})
-        </span>
-      </div>
+  <span class="text-black">
+    เวลารับยา :
+    {{
+      approveSmartWard?.approve_time
+        ? approveSmartWard.approve_time.substring(0, 5) + ' น.'
+        : '-'
+    }}
+    ({{ approveSmartWard?.flgn_order || '' }})
+  </span>
+</div>
+
+<!-- order_type ไม่ใช่ W ใช้ข้อมูล Locker -->
+<div
+  *ngIf="selectedOrder.order_type !== 'W '"
+  class="flex flex-row gap-10 mt-4"
+>
+  <span class="text-black">
+    เวลานำเข้า Locker :
+    {{ inLockerTime ? (inLockerTime | date: 'HH:mm') + ' น.' : '-' }}
+    ({{ inLockerFname || '' }})
+  </span>
+
+  <span class="text-black">
+    เวลานำออก Locker :
+    {{ outLockerTime ? (outLockerTime | date: 'HH:mm') + ' น.' : '-' }}
+    ({{ outLockerFname || '' }})
+  </span>
+</div>
 
       <div class="border-b border-gray-400 mt-4"></div>
 
@@ -60,14 +92,6 @@
           <span class="text-black text-ml">จำนวน : {{ data.qty }}</span>
           <span class="text-black text-ml">หน่วย : {{ data.units }}</span>
           <span class="text-black text-ml">สถานะ : {{ data.state_description }}</span>
-          <span class="text-black text-ml">
-            เวลารับเข้า :
-            {{
-              (data.state_datetime | date: 'HH:mm')
-                ? (data.state_datetime | date: 'HH:mm') + ' น.'
-                : '-'
-            }}
-          </span>
         </div>
 
         <!-- <div class="flex flex-col mt-2 gap-2">

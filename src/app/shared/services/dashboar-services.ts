@@ -206,6 +206,23 @@ export class DashboarServices {
     );
   }
 
+  getapprovesmartward(order_number: string): void {
+    try {
+      this.socketSrv.emit('get_approve_smartward', {  order_number });
+    } catch (error) {
+      console.error('Emit get_approve_smartward error:', error);
+    }
+  }
+
+  onapprovesmartward(): Observable<any> {
+    return this.socketSrv.on<any>('approve_smartward').pipe(
+      catchError(error => {
+        console.error('Socket create_time_locker error:', error);
+        return throwError(() => error);
+      })
+    );
+  }  
+
   // orderSmartward
 orderSmartward(): Observable<any> {
   return this.socketSrv.on<any>('order_smart_ward').pipe(
