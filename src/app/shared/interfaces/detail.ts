@@ -87,6 +87,7 @@ export interface OrderSmartward{
   hn: string
   order_date: any
   order_time: any
+  prescription_number:string
   
 }
 
