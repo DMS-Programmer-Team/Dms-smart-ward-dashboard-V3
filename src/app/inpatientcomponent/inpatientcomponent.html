@@ -59,7 +59,7 @@
       </div>
               <div class="flex flex-wrap gap-2 mt-1 text-sm">
         <div class="badge badge-neutral">
-          เวลานำยาเข้าตู้: {{ noti.order_time }}
+          เวลานำยาเข้าตู้: {{ noti.order_time.substring(0, 8) || '-' }}
         </div>
 
         <div class="badge badge-info">
