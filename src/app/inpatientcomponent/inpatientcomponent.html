@@ -30,7 +30,7 @@
   </div>
 
   <!-- Smart Ward -->
-<div
+<!-- <div
   *ngFor="let noti of smartWardNotifications; trackBy: trackByNotiId"
   class="alert alert-warning shadow-lg flex justify-between items-center mb-2">
 
@@ -38,7 +38,7 @@
 
     <div class="avatar placeholder">
       <div class="bg-warning text-warning-content rounded-full w-10">
-        <!-- <i class="fa-solid fa-pills"></i> -->
+       
       </div>
     </div>
 
@@ -77,7 +77,7 @@
     <i class="fa-solid fa-xmark"></i>
   </button>
 
-</div>
+</div> -->
 
 </div>
 
@@ -261,7 +261,7 @@
                     <option value="E">STAT</option>
                     <option value="N">NEW</option>
                     <option value="C">CON</option>
-                    <option value="W">SmartWard</option>
+                    <!-- <option value="W">SmartWard</option> -->
                 </select>
 
             </label>
@@ -337,10 +337,10 @@
                             *ngIf="item.order_type?.trim() === 'E'">
                             STAT
                         </span>
-                        <span class="badge bg-[#525EA7] border-[#525EA7] badge-xl text-white"
+                        <!-- <span class="badge bg-[#525EA7] border-[#525EA7] badge-xl text-white"
                             *ngIf="item.order_type?.trim() === 'W'">
                             SmartWard
-                        </span>                        
+                        </span>                         -->
                     </td>
                     <td>{{ item.order_count }}</td>
                     <td class="px-1 sm:px-2">

@@ -126,7 +126,7 @@ export class Inpatientcomponent implements OnInit, OnDestroy {
       })
     );
 
-    this.reqsmartward();
+    // this.reqsmartward();
 
     this.subs.add(
       this.socket.fromEvent<LockerNotification>('locker-new').subscribe((data) => {
@@ -196,19 +196,17 @@ export class Inpatientcomponent implements OnInit, OnDestroy {
       })
     );
 
-this.subs.add(
-  this.dashboardSrv.onapprovesmartward().subscribe(res => {
-    // console.log('approvesmartward', res);
+// this.subs.add(
+//   this.dashboardSrv.onapprovesmartward().subscribe(res => {
 
-    if (res?.status === 200 && res.data?.length) {
-      // console.log('Approve Smart Ward สำเร็จ');
+//     if (res?.status === 200 && res.data?.length) {
 
-      this.approveSmartWard = res.data[0];
+//       this.approveSmartWard = res.data[0];
 
-      // console.log('approveSmartWard:', this.approveSmartWard);
-    }
-  })
-);
+  
+//     }
+//   })
+// );
   }
 
   ngOnDestroy() {
@@ -301,7 +299,7 @@ this.subs.add(
     this.swalSrv.loadingAlert2();
     this.dashboardSrv.getdetail(item.hn, item.order_number);
     this.dashboardSrv.getcreateatlocker(item.order_number);
-    this.dashboardSrv.getapprovesmartward(item.order_number);
+    // this.dashboardSrv.getapprovesmartward(item.order_number);
 
     this.dashboardSrv.ondetail().pipe(take(1)).subscribe(res => {
       if (res.status === 200) {
@@ -434,52 +432,52 @@ this.subs.add(
     }
   }
 
-  reqsmartward() {
+  // reqsmartward() {
 
-    this.subs.add(
-      this.dashboardSrv.orderSmartward().subscribe({
-        next: (res) => {
-          if (res.status !== 200) {
-            return;
-          }
+  //   this.subs.add(
+  //     this.dashboardSrv.orderSmartward().subscribe({
+  //       next: (res) => {
+  //         if (res.status !== 200) {
+  //           return;
+  //         }
 
-          res.msg.forEach((item: any) => {
-            const wardMatch =
-              String(item.wardcode).trim() === String(this.filters.ward).trim();
+  //         res.msg.forEach((item: any) => {
+  //           const wardMatch =
+  //             String(item.wardcode).trim() === String(this.filters.ward).trim();
 
-            if (!wardMatch) {
-              return;
-            }
+  //           if (!wardMatch) {
+  //             return;
+  //           }
 
-            const exists = this.smartWardNotifications.some(
-              x => String(x.order_number) === String(item.order_number)
-            );
+  //           const exists = this.smartWardNotifications.some(
+  //             x => String(x.order_number) === String(item.order_number)
+  //           );
 
-            if (!exists) {
-              const newItem = {
-                ...item,
-                id: Date.now().toString()
-              };
+  //           if (!exists) {
+  //             const newItem = {
+  //               ...item,
+  //               id: Date.now().toString()
+  //             };
 
-              this.smartWardNotifications = [
-                newItem,
-                ...this.smartWardNotifications
-              ];
-            }
-          });
-        },
-        error: (err) => {
-          console.error('SMARTWARD ERROR', err);
-        }
-      })
-    );
+  //             this.smartWardNotifications = [
+  //               newItem,
+  //               ...this.smartWardNotifications
+  //             ];
+  //           }
+  //         });
+  //       },
+  //       error: (err) => {
+  //         console.error('SMARTWARD ERROR', err);
+  //       }
+  //     })
+  //   );
 
-    this.socket.emit('get_order_smart_ward');
+  //   this.socket.emit('get_order_smart_ward');
 
-    this.smartWardIntervalId = setInterval(() => {
-      this.socket.emit('get_order_smart_ward');
-    }, 5000);
-  }
+  //   this.smartWardIntervalId = setInterval(() => {
+  //     this.socket.emit('get_order_smart_ward');
+  //   }, 5000);
+  // }
 
   // ---- FIX 1: trackBy for the dashboard table so Angular doesn't ----
   // ---- tear down and rebuild every row on each poll/search refresh ----
