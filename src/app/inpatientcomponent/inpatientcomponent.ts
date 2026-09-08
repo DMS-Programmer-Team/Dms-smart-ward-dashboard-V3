@@ -176,25 +176,32 @@ export class Inpatientcomponent implements OnInit, OnDestroy {
       })
     );
 
-    this.subs.add(
-      this.dashboardSrv.oncreateatlocker().subscribe(res => {
-        console.log('oncreateatlocker', res);
-        if (res.status === 200 && res.data?.length) {
-          const inLocker = res.data.find((x: any) => x.lock_state === 1);
-          const outLocker = res.data.find((x: any) => x.lock_state === 2 || x.lock_state === 3);
+this.subs.add(
+  this.dashboardSrv.oncreateatlocker().subscribe(res => {
+    console.log('oncreateatlocker', res);
 
-      // นำเข้า
+    if (res.status === 200 && res.data?.length) {
+      const inLocker = res.data.find((x: any) => x.lock_state === 1);
+      const outLocker = res.data.find((x: any) => x.lock_state === 2 || x.lock_state === 3);
+
       this.inLockerTime = inLocker?.create_at ?? null;
       this.inLockerFname = inLocker?.fname ?? '';
       this.inLockerLname = inLocker?.lname ?? '';
 
-      // นำออก
       this.outLockerTime = outLocker?.create_at ?? null;
       this.outLockerFname = outLocker?.fname ?? '';
       this.outLockerLname = outLocker?.lname ?? '';
-        }
-      })
-    );
+    } else {
+      // ✅ สำคัญ: ไม่พบข้อมูล locker สำหรับ order นี้ → เคลียร์ค่าทั้งหมด
+      this.inLockerTime = null;
+      this.inLockerFname = '';
+      this.inLockerLname = '';
+      this.outLockerTime = null;
+      this.outLockerFname = '';
+      this.outLockerLname = '';
+    }
+  })
+);
 
 this.subs.add(
   this.dashboardSrv.onapprovesmartward().subscribe(res => {
